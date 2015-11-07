@@ -1,0 +1,20 @@
+{
+    "name": "Lab123/odin",
+    "description": "Odin package for Lab123 APIs.",
+    "keywords": ["laravel", "odin"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lab123",
+            "email": "jean.silva@lab123.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Lab123\\Odin\\": "src/"
+        }
+    },
+    "require": {
+        "illuminate/support": "~5"
+    }
+}
