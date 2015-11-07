@@ -2,7 +2,6 @@
     "name": "Lab123/odin",
     "description": "Odin package for Lab123 APIs.",
     "keywords": ["laravel", "odin"],
-    "license": "MIT",
     "authors": [
         {
             "name": "Lab123",
@@ -14,6 +13,7 @@
             "Lab123\\Odin\\": "src/"
         }
     },
+    "minimum-stability": "dev",
     "require": {
         "illuminate/support": "~5"
     }
