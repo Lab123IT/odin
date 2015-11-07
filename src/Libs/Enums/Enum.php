@@ -23,4 +23,7 @@ abstract class Enum
         $oClass = new \ReflectionClass(get_called_class());
         return $oClass->getConstants();
     }
+    
+    
+    
 }
