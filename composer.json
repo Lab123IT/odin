@@ -4,9 +4,18 @@
     "keywords": ["laravel", "odin"],
     "authors": [
         {
-            "name": "Lab123",
-            "email": "jean.silva@lab123.com"
+            "name": "Jean Pierre",
+            "email": "jean.silva@gmail.com"
+        },
+        {
+            "name": "Cloves Jose",
+            "email": "cjsj.tec@gmail.com"
+        },
+        {
+            "name": "Felipe Santos",
+            "email": "felipeds2004@gmail.com"
         }
+
     ],
     "autoload": {
         "psr-4": {
