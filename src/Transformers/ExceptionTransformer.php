@@ -1,7 +1,9 @@
 <?php
 namespace Lab123\Odin\Transformers;
 
-class ExceptionTransformer extends BaseTransformer
+use Lab123\Odin\Transformers\Transformer;
+
+class ExceptionTransformer extends Transformer
 {
 
     /**

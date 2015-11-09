@@ -1,7 +1,7 @@
 <?php
 namespace Lab123\Odin\Libs\Utils;
 
-use Lab123\Odin\Entities\Model;
+use Lab123\Odin\Entities\Entity;
 use Illuminate\Http\Request;
 
 class Search
@@ -21,7 +21,7 @@ class Search
 
     protected $order;
 
-    public function __construct(Model $model, array $data)
+    public function __construct(Entity $model, array $data)
     {
         $this->model = $model;
         
