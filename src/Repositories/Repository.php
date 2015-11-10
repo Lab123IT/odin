@@ -29,36 +29,70 @@ abstract class Repository implements IRepository
         return $this->model->find($id);
     }
 
+    /**
+     * Return all resources
+     */
     public function findAll()
     {
         return $this->model->all();
     }
 
+    /**
+     * Create a new resources
+     *
+     * @param $data array            
+     */
     public function create(array $data)
     {
         return $this->model->create($data);
     }
 
+    /**
+     * Update a resources
+     *
+     * @param $data array            
+     * @param $id int            
+     */
     public function update(array $data, $id)
     {
         return $this->model->find($id)->update($data);
     }
 
+    /**
+     * Create or Update a resources
+     *
+     * @param $data array            
+     */
     public function firstOrCreate(array $data)
     {
         return $this->model->firstOrCreate($data);
     }
 
+    /**
+     * Delete a resources
+     *
+     * @param $id int            
+     */
     public function delete($id)
     {
         return $this->model->find($id)->delete();
     }
 
+    /**
+     * Return a Filter a resources
+     *
+     * @param $data array            
+     */
     public function filter(array $data)
     {
         return new Search($this->model, $data);
     }
 
+    /**
+     * Return resources
+     *
+     * @param $data array            
+     */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, $include = null, $fields = null)
     {
         $model = $this->model;
@@ -92,11 +126,21 @@ abstract class Repository implements IRepository
         return $model->get();
     }
 
+    /**
+     * Return a resources by criteria
+     *
+     * @param $data array            
+     */
     public function findOneBy(array $criteria)
     {
         return $this->findBy($criteria)->first();
     }
 
+    /**
+     * Return a Uri of resource
+     *
+     * @param $data array            
+     */
     public function getURI()
     {
         $ids = func_get_args();
