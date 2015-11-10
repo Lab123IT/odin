@@ -33,4 +33,21 @@ class Controller extends IlluminateController
             return $this->exception($ex);
         }
     }
+
+    /**
+     * Display one resource by id.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        try {
+            
+            $data = $this->repository->find($id)->toArray();
+            
+            return $this->success($data);
+        } catch (\Exception $ex) {
+            return $this->exception($ex);
+        }
+    }
 }
