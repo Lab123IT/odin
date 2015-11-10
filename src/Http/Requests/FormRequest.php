@@ -1,9 +1,9 @@
 <?php
 namespace Lab123\Odin\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Foundation\Http\FormRequest as BaseFormRequest;
 
-abstract class FormRequest extends FormRequest
+abstract class FormRequest extends BaseFormRequest
 {
 
     /**
