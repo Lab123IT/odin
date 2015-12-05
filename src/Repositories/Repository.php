@@ -63,8 +63,14 @@ abstract class Repository implements IRepository
     {
         $model = $this->model;
         
-        foreach ($criteria as $c) {
-            $model = $model->where($c[0], $c[1], $c[2]);
+        if (count($criteria) == count($criteria, COUNT_RECURSIVE)) {
+            if (count($criteria) > 0) {
+                $model = $model->where($criteria[0], $criteria[1], $criteria[2]);
+            }
+        } else {
+            foreach ($criteria as $c) {
+                $model = $model->where($c[0], $c[1], $c[2]);
+            }
         }
         
         if ($orderBy !== null) {
