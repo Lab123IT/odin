@@ -8,6 +8,7 @@ use Illuminate\Routing\ResponseFactory;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use JWTAuth;
 
 class Controller extends IlluminateController
 {
@@ -49,5 +50,10 @@ class Controller extends IlluminateController
         } catch (\Exception $ex) {
             return $this->exception($ex);
         }
+    }
+
+    protected function getCurrentUser()
+    {
+        return JWTAuth::parseToken()->authenticate();
     }
 }
