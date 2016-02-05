@@ -1,0 +1,29 @@
+{
+    "name": "Lab123/odin",
+    "description": "Odin package for Lab123 APIs.",
+    "keywords": ["laravel", "odin"],
+    "authors": [
+        {
+            "name": "Jean Pierre",
+            "email": "jean.silva@gmail.com"
+        },
+        {
+            "name": "Cloves Jose",
+            "email": "cjsj.tec@gmail.com"
+        },
+        {
+            "name": "Felipe Santos",
+            "email": "felipeds2004@gmail.com"
+        }
+
+    ],
+    "autoload": {
+        "psr-4": {
+            "Lab123\\Odin\\": "src/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {
+        "illuminate/support": "~5"
+    }
+}
