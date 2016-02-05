@@ -45,6 +45,7 @@ class Search
         $this->includes();
         $this->limit();
         $this->orderBy();
+        $this->criteria();
         
         return $this;
     }
@@ -78,9 +79,13 @@ class Search
         $this->model = $this->model->select($this->fields);
     }
 
-    public function criteria($criteria)
+    public function criteria()
     {
-        foreach ($criteria as $c) {
+
+        foreach ($this->criteria as $c) {
+
+            $c = explode(',', $c);
+
             $this->model = $this->model->where($c[0], $c[1], $c[2]);
         }
     }
@@ -116,7 +121,7 @@ class Search
 
     public function setCriteria($criteria)
     {
-        $this->criteria = (empty($criteria)) ? [] : array_filter(explode(',', $criteria));
+        $this->criteria = (empty($criteria)) ? [] : $criteria;
     }
 
     private function setIncludes($includes)

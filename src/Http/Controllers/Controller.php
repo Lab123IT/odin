@@ -40,11 +40,14 @@ class Controller extends IlluminateController
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        $filters = $request->all();
+        $filters['criteria'][] = 'id,=,'.$id;
+
         try {
             
-            $data = $this->repository->find($id)->toArray();
+            $data = $this->repository->filter($filters)->first()->toArray();
             
             return $this->success($data);
         } catch (\Exception $ex) {
