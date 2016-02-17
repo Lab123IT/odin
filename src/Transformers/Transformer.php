@@ -42,7 +42,7 @@ class Transformer
 
     public function convertToClient()
     {
-        return $this->convert();
+        return array_merge($this->convert(), $this->additionalConvert());
     }
 
     public function convertFromClient()
@@ -79,5 +79,16 @@ class Transformer
     protected function mutateAttribute($key)
     {
         return $this->{'get' . Str::studly($key) . 'Attribute' }();
+    }
+
+    protected function additionalConvert()
+    {
+        return [];
+    }
+
+    public function setModel($model)
+    {
+        $this->model = $model;
+        return $this;
     }
 }

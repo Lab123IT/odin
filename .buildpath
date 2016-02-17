@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildpath>
+	<buildpathentry kind="src" path="src/Entities"/>
+	<buildpathentry kind="src" path="src/Facades"/>
+	<buildpathentry kind="src" path="src/Http"/>
+	<buildpathentry kind="src" path="src/Libs/Enums"/>
+	<buildpathentry kind="src" path="src/Libs/Lists"/>
+	<buildpathentry kind="src" path="src/Libs/Utils"/>
+	<buildpathentry kind="src" path="src/Providers"/>
+	<buildpathentry kind="src" path="src/Repositories"/>
+	<buildpathentry kind="src" path="src/Traits"/>
+	<buildpathentry kind="src" path="src/Transformers"/>
+	<buildpathentry kind="con" path="org.eclipse.php.core.LANGUAGE"/>
+</buildpath>
