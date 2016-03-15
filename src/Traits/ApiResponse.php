@@ -2,6 +2,7 @@
 namespace Lab123\Odin\Traits;
 
 use Log;
+use App;
 
 trait ApiResponse
 {
@@ -83,14 +84,22 @@ trait ApiResponse
      */
     protected function exception(\Exception $ex)
     {
-        Log::error([
+        $log = [
             'error' => $ex->getMessage(),
             'file' => $ex->getFile(),
             'line' => $ex->getLine()
-        ]);
+        ];
         
-        return $this->internalError([
+        Log::error($log);
+        
+        $return = [
             "erro" => "Ocorreu um erro inesperado. Por favor, tente mais tarde."
-        ]);
+        ];
+        
+        if (App::environment('local', 'staging')) {
+            $return['server_error'] = $log;
+        }
+        
+        return $this->internalError();
     }
 }

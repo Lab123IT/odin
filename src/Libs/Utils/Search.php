@@ -2,7 +2,6 @@
 namespace Lab123\Odin\Libs\Utils;
 
 use Lab123\Odin\Entities\Entity;
-use Illuminate\Http\Request;
 
 class Search
 {
@@ -21,9 +20,12 @@ class Search
 
     protected $order;
 
+    protected $builder;
+
     public function __construct(Entity $model, array $data)
     {
         $this->model = $model;
+        $this->builder = $model;
         
         $this->setFields(array_get($data, 'fields'));
         $this->setCriteria(array_get($data, 'criteria'));
@@ -31,7 +33,19 @@ class Search
         $this->setLimit(array_get($data, 'limit'));
         $this->setOrder(array_get($data, 'order'));
         
+        $this->searchFields($data);
+        
         $this->filter();
+    }
+
+    protected function searchFields($data)
+    {
+        $builder = '';
+        if (method_exists($this->model, 'searchFields')) {
+            $builder = $this->model->searchFields($data);
+        }
+        
+        $this->builder = ($builder) ? $builder : $this->builder;
     }
 
     /**
@@ -52,48 +66,47 @@ class Search
 
     public function paginate()
     {
-        $paginate = $this->model->paginate($this->limit);
+        $paginate = $this->builder->paginate($this->limit);
         $paginate->setPath('');
         return $paginate;
     }
 
     public function simplePaginate()
     {
-        $paginate = $this->model->simplePaginate($this->limit);
+        $paginate = $this->builder->simplePaginate($this->limit);
         $paginate->setPath('');
         return $paginate;
     }
 
     public function get()
     {
-        return $this->model->get();
+        return $this->builder->get();
     }
 
     public function first()
     {
-        return $this->model->first();
+        return $this->builder->first();
     }
 
     public function fields()
     {
-        $this->model = $this->model->select($this->fields);
+        $this->builder = $this->builder->select($this->fields);
     }
 
     public function criteria()
     {
-
         foreach ($this->criteria as $c) {
-
+            
             $c = explode(',', $c);
-
-            $this->model = $this->model->where($c[0], $c[1], $c[2]);
+            
+            $this->builder = $this->builder->where($c[0], $c[1], $c[2]);
         }
     }
 
     public function includes()
     {
         foreach ($this->includes as $include) {
-            $this->model = $this->model->with($include);
+            $this->builder = $this->builder->with($include);
         }
     }
 
@@ -105,13 +118,13 @@ class Search
             
             $order[1] = (array_key_exists(1, $order)) ? $order[1] : '';
             
-            $this->model = $this->model->orderBy($order[0], $order[1]);
+            $this->builder = $this->builder->orderBy($order[0], $order[1]);
         }
     }
 
     public function limit()
     {
-        $this->model = $this->model->take((int) $this->limit);
+        $this->builder = $this->builder->take((int) $this->limit);
     }
 
     private function setFields($fields)

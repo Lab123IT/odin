@@ -17,6 +17,8 @@ class Transformer
     protected $appends = [];
 
     protected $with = [];
+    
+    protected $serialized = [];
 
     /**
      * Transform object into a generic array
@@ -34,7 +36,7 @@ class Transformer
         // $mapper = ($inverse == true) ? array_flip($mapper) : $mapper;
         
         foreach ($mapper as $k => $v) {
-            $branch[$k] = (is_array($v)) ? $this->transform($v, $inverse) : $this->model->$v;
+            $branch[$k] = (is_array($v)) ? $this->transform($v, $inverse) : $this->serialized[$v];
         }
         
         return $branch;
@@ -42,7 +44,7 @@ class Transformer
 
     public function convertToClient()
     {
-        return $this->convert();
+        return array_merge($this->convert(), $this->additionalConvert());
     }
 
     public function convertFromClient()
@@ -79,5 +81,17 @@ class Transformer
     protected function mutateAttribute($key)
     {
         return $this->{'get' . Str::studly($key) . 'Attribute' }();
+    }
+
+    protected function additionalConvert()
+    {
+        return [];
+    }
+
+    public function setModel($model)
+    {
+        $this->model = $model;
+        $this->serialized = $model->toArray();
+        return $this;
     }
 }
