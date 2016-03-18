@@ -59,6 +59,10 @@ class Controller extends IlluminateController
 
     protected function getCurrentUser()
     {
-        return JWTAuth::parseToken()->authenticate();
+        try {
+            return JWTAuth::parseToken()->authenticate();
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $ex) {
+            return null;
+        }
     }
 }

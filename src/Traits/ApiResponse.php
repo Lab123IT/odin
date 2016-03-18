@@ -78,6 +78,16 @@ trait ApiResponse
     }
 
     /**
+     * Return HTTP Conflict (409)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    protected function conflict(array $data = array())
+    {
+        return response()->json($data, 409);
+    }
+
+    /**
      * Return HTTP Bad Request (400)
      *
      * @return \Illuminate\Http\Response
