@@ -175,7 +175,8 @@ class Search
             'mysql' => 'RAND()',
             'pgsql' => 'RANDOM()',
             'sqlite' => 'RANDOM()',
-            'sqlsrv' => 'NEWID()'
+            'sqlsrv' => 'NEWID()',
+            'dblib' => 'NEWID()'
         ];
         
         /* Drive padrão da entidade */
