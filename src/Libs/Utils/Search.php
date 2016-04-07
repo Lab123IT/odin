@@ -2,6 +2,7 @@
 namespace Lab123\Odin\Libs\Utils;
 
 use Lab123\Odin\Entities\Entity;
+use DB;
 
 class Search
 {
@@ -55,11 +56,11 @@ class Search
      */
     public function filter()
     {
-        $this->fields();
-        $this->includes();
-        $this->limit();
-        $this->orderBy();
-        $this->criteria();
+        $this->fields()
+            ->includes()
+            ->limit()
+            ->orderBy()
+            ->criteria();
         
         return $this;
     }
@@ -91,6 +92,8 @@ class Search
     public function fields()
     {
         $this->builder = $this->builder->select($this->fields);
+        
+        return $this;
     }
 
     public function criteria()
@@ -101,6 +104,8 @@ class Search
             
             $this->builder = $this->builder->where($c[0], $c[1], $c[2]);
         }
+        
+        return $this;
     }
 
     public function includes()
@@ -108,10 +113,17 @@ class Search
         foreach ($this->includes as $include) {
             $this->builder = $this->builder->with($include);
         }
+        
+        return $this;
     }
 
     public function orderBy()
     {
+        if (end($this->order) == "random") {
+            $this->builder = $this->builder->orderBy($this->random());
+            return $this;
+        }
+        
         foreach ($this->order as $order) {
             
             $order = explode(',', $order);
@@ -120,11 +132,15 @@ class Search
             
             $this->builder = $this->builder->orderBy($order[0], $order[1]);
         }
+        
+        return $this;
     }
 
     public function limit()
     {
         $this->builder = $this->builder->take((int) $this->limit);
+        
+        return $this;
     }
 
     private function setFields($fields)
@@ -150,5 +166,21 @@ class Search
     private function setOrder($order)
     {
         $this->order = (empty($order)) ? [] : $order;
+    }
+
+    private function random()
+    {
+        /* Funções para random de cada um dos SGBDs tradicionais */
+        $randomFunctions = [
+            'mysql' => 'RAND()',
+            'pgsql' => 'RANDOM()',
+            'sqlite' => 'RANDOM()',
+            'sqlsrv' => 'NEWID()'
+        ];
+        
+        /* Drive padrão da entidade */
+        $driver = $this->model->getConnection()->getDriverName();
+        
+        return DB::raw($randomFunctions[$driver]);
     }
 }
