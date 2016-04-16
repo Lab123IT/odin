@@ -1,5 +1,5 @@
 <?php
-namespace Lab123\Odin\Transformers;
+namespace Lab123\Odin\Resource;
 
 use Illuminate\Support\Str;
 
@@ -17,7 +17,7 @@ class Transformer
     protected $appends = [];
 
     protected $with = [];
-    
+
     protected $serialized = [];
 
     /**
@@ -31,7 +31,7 @@ class Transformer
             return '';
         }
         
-        $branch = array();
+        $branch = [];
         
         // $mapper = ($inverse == true) ? array_flip($mapper) : $mapper;
         

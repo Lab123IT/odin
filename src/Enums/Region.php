@@ -1,5 +1,7 @@
 <?php
-namespace Lab123\Odin\Libs\Enums;
+namespace Lab123\Odin\Enums;
+
+use Lab123\Odin\Enums\Enum;
 
 class AwsRegion extends Enum
 {

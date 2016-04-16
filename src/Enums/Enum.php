@@ -1,5 +1,5 @@
 <?php
-namespace Lab123\Odin\Libs\Enums;
+namespace Lab123\Odin\Enums;
 
 abstract class Enum
 {

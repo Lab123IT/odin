@@ -102,19 +102,4 @@ abstract class Repository implements IRepository
     {
         return $this->findBy($criteria)->first();
     }
-
-    public function getURI()
-    {
-        $ids = func_get_args();
-        $uri = '';
-        
-        foreach ($this->tree_uri as $i => $node_uri) {
-            
-            $uri .= (empty($uri)) ? '' : '/';
-            $uri .= $node_uri;
-            $uri .= (array_key_exists($i, $ids)) ? '/' . $ids[$i] : '/';
-        }
-        
-        return Api::url() . $uri;
-    }
 }

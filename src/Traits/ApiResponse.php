@@ -110,6 +110,6 @@ trait ApiResponse
             $return['server_error'] = $log;
         }
         
-        return $this->internalError();
+        return $this->internalError($return);
     }
 }

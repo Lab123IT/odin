@@ -1,5 +1,5 @@
 <?php
-namespace Lab123\Odin\Libs\Utils;
+namespace Lab123\Odin\Libs;
 
 use Lab123\Odin\Entities\Entity;
 use DB;
@@ -7,7 +7,7 @@ use DB;
 class Search
 {
 
-    protected $model;
+    protected $entity;
 
     protected $request;
 
@@ -23,10 +23,10 @@ class Search
 
     protected $builder;
 
-    public function __construct(Entity $model, array $data)
+    public function __construct(Entity $entity, array $data)
     {
-        $this->model = $model;
-        $this->builder = $model;
+        $this->entity = $entity;
+        $this->builder = $entity;
         
         $this->setFields(array_get($data, 'fields'));
         $this->setCriteria(array_get($data, 'criteria'));
@@ -42,8 +42,8 @@ class Search
     protected function searchFields($data)
     {
         $builder = '';
-        if (method_exists($this->model, 'searchFields')) {
-            $builder = $this->model->searchFields($data);
+        if (method_exists($this->entity, 'searchFields')) {
+            $builder = $this->entity->searchFields($data);
         }
         
         $this->builder = ($builder) ? $builder : $this->builder;
@@ -180,7 +180,7 @@ class Search
         ];
         
         /* Drive padrão da entidade */
-        $driver = $this->model->getConnection()->getDriverName();
+        $driver = $this->entity->getConnection()->getDriverName();
         
         return DB::raw($randomFunctions[$driver]);
     }
