@@ -1,6 +1,8 @@
 <?php
 namespace Lab123\Odin\Traits;
 
+use Lab123\Odin\Enums\Response;
+use Lab123\Odin\Entities\Entity;
 use Log;
 use App;
 
@@ -12,9 +14,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function continues(array $data = array())
+    protected function continues()
     {
-        return response()->json($data, 100);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_CONTINUE);
     }
 
     /**
@@ -22,9 +25,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function success(array $data = array())
+    protected function success()
     {
-        return response()->json($data, 200);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_OK);
     }
 
     /**
@@ -32,9 +36,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function created(array $data = array())
+    protected function created()
     {
-        return response()->json($data, 201);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_CREATED);
     }
 
     /**
@@ -42,9 +47,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function bad(array $data = array())
+    protected function bad()
     {
-        return response()->json($data, 400);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -52,9 +58,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function unauthorized(array $data = array())
+    protected function unauthorized()
     {
-        return response()->json($data, 401);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -62,9 +69,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function notFound(array $data = array())
+    protected function notFound()
     {
-        return response()->json($data, 404);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -72,9 +80,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function internalError(array $data = array())
+    protected function internalError()
     {
-        return response()->json($data, 500);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -82,13 +91,24 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function conflict(array $data = array())
+    protected function conflict()
     {
-        return response()->json($data, 409);
+        $args = func_get_args();
+        return $this->response($this->getData($args), Response::HTTP_CONFLICT);
     }
 
     /**
-     * Return HTTP Bad Request (400)
+     * Return HTTP Code
+     *
+     * @return \Illuminate\Http\Response
+     */
+    protected function response(array $data, $http_code)
+    {
+        return response()->json($data, $http_code);
+    }
+
+    /**
+     * Return Exception into HTTP Internal Error (500)
      *
      * @return \Illuminate\Http\Response
      */
@@ -111,5 +131,33 @@ trait ApiResponse
         }
         
         return $this->internalError($return);
+    }
+
+    /**
+     * Return entity data array or array blank
+     *
+     * @return array
+     */
+    private function getData($args)
+    {
+        $data = [];
+        
+        /* Sem argumentos, retorna array em branco */
+        if (count($args) < 1) {
+            return $data;
+        }
+        
+        /* Enviou um array como parâmetro */
+        if (is_array($args[1])) {
+            return $args[1];
+        }
+        
+        /* Enviou uma Entidade como parâmetro */
+        if (is_a($args[1], Entity::class)) {
+            $entity = ($args[1]);
+            $data = $entity->toArray();
+        }
+        
+        return $data;
     }
 }

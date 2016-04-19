@@ -1,9 +1,9 @@
 <?php
 namespace Lab123\Odin\Repositories;
 
-use Lab123\Odin\Repositories\Contracts\IRepository;
-use Lab123\Odin\Libs\Utils\Api;
-use Lab123\Odin\Libs\Utils\Search;
+use Lab123\Odin\Contracts\IRepository;
+use Lab123\Odin\Libs\Api;
+use Lab123\Odin\Libs\Search;
 use Illuminate\Http\Request;
 
 abstract class Repository implements IRepository

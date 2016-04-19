@@ -1,5 +1,5 @@
 <?php
-namespace Lab123\Odin\Repositories\Contracts;
+namespace Lab123\Odin\Contracts;
 
 interface IRepository
 {

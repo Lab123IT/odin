@@ -1,9 +1,9 @@
 <?php
-namespace Lab123\Odin\Enums\Enum;
+namespace Lab123\Odin\Enums;
 
 use Lab123\Odin\Enums\Enum;
 
-class Response
+abstract class Responses extends Enum
 {
     const HTTP_CONTINUE = 100;
     const HTTP_SWITCHING_PROTOCOLS = 101;

@@ -3,7 +3,7 @@ namespace Lab123\Odin\Enums;
 
 use Lab123\Odin\Enums\Enum;
 
-class AwsRegion extends Enum
+abstract class AwsRegion extends Enum
 {
 	const US_EAST_1           = 'us-east-1';
 	const VIRGINIA            = 'us-east-1';

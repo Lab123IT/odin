@@ -1,9 +1,9 @@
 <?php
-namespace Lab123\Odin;
+namespace Lab123\Odin\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class OdinFacade extends Facade
+class Facade extends Facade
 {
 
     protected static function getFacadeAccessor()

@@ -1,5 +1,5 @@
 <?php
-namespace Lab123\Odin\Http\Requests;
+namespace Lab123\Odin\Requests;
 
 use Illuminate\Foundation\Http\FormRequest as BaseFormRequest;
 
