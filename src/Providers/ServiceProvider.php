@@ -1,17 +1,56 @@
 <?php
 namespace Lab123\Odin\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Hashids\Hashids;
 
-class ServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseServiceProvider
 {
 
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->publishes([
+            __DIR__ . '/../Config/odin.php' => config_path('odin.php')
+        ]);
+    }
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
     public function register()
     {
-        /*
-         * $this->app->bind('lab123-odin', function () {
-         * return new Demo();
-         * });
-         */
+        $this->facades();
+        $this->makes();
+    }
+
+    /**
+     * Register Facades from Odin.
+     *
+     * @return void
+     */
+    public function facades()
+    {
+        $this->app->bind('ApiResponse', function () {
+            return new \Lab123\Odin\Libs\ApiResponse();
+        });
+    }
+
+    /**
+     * Register all Binds from Odin.
+     *
+     * @return void
+     */
+    public function makes()
+    {
+        $this->app->bind('Hashids', function ($app) {
+            return new Hashids(config('key'), config('odin.hashid.length_key'));
+        });
     }
 }

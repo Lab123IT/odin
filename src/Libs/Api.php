@@ -7,8 +7,9 @@ class Api
 {
 
     /**
+     * Url da API
      *
-     * @return string - Url da API
+     * @return string
      */
     public static function url()
     {

@@ -4,7 +4,7 @@ namespace Lab123\Odin\Repositories;
 use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Libs\Api;
 use Lab123\Odin\Libs\Search;
-use Illuminate\Http\Request;
+use Lab123\Odin\Requests\FilterRequest;
 
 abstract class Repository implements IRepository
 {
@@ -15,50 +15,82 @@ abstract class Repository implements IRepository
     protected $model;
 
     /**
-     * Tree URI reference
-     */
-    protected $tree_uri = [];
-
-    /**
      * Return a resource by id
      *
      * @param $id int            
+     * @return Illuminate\Database\Eloquent\Model
      */
     public function find($id)
     {
         return $this->model->find($id);
     }
 
+    /**
+     * Return collection of resources
+     *
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function findAll()
     {
         return $this->model->all();
     }
 
+    /**
+     * Return a new resource
+     *
+     * @param $data array            
+     * @return Illuminate\Database\Eloquent\Model
+     */
     public function create(array $data)
     {
         return $this->model->create($data);
     }
 
-    public function update(array $data, $id)
-    {
-        return $this->model->find($id)->update($data);
-    }
-
+    /**
+     * Retrieve the resource by the attributes, or create it if it doesn't exist
+     *
+     * @param $data array            
+     * @return Illuminate\Database\Eloquent\Model
+     */
     public function firstOrCreate(array $data)
     {
         return $this->model->firstOrCreate($data);
     }
 
+    /**
+     * Update a resource by id
+     *
+     * @param $data array            
+     * @param $id int            
+     * @return boolean
+     */
+    public function update(array $data, $id)
+    {
+        return $this->model->find($id)->update($data);
+    }
+
+    /**
+     * Delete a resource by id
+     *
+     * @param $id int            
+     * @return boolean
+     */
     public function delete($id)
     {
         return $this->model->find($id)->delete();
     }
 
-    public function filter(array $data)
-    {
-        return new Search($this->model, $data);
-    }
-
+    /**
+     * Return collection of resources
+     *
+     * @param $criteria array            
+     * @param $orderBy array            
+     * @param $limit int            
+     * @param $offset int            
+     * @param $include array            
+     * @param $fields string            
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, $include = null, $fields = null)
     {
         $model = $this->model;
@@ -98,8 +130,25 @@ abstract class Repository implements IRepository
         return $model->get();
     }
 
+    /**
+     * Return a resource by criteria
+     *
+     * @param $criteria array            
+     * @return Illuminate\Database\Eloquent\Model
+     */
     public function findOneBy(array $criteria)
     {
         return $this->findBy($criteria)->first();
+    }
+
+    /**
+     * Filter the Entity
+     *
+     * @param Lab123\Odin\Requests\FilterRequest $filters            
+     * @return Lab123\Odin\Libs\Search
+     */
+    public function filter(FilterRequest $filters)
+    {
+        return new Search($this->model, $filters);
     }
 }

@@ -1,8 +1,10 @@
 <?php
 namespace Lab123\Odin\Traits;
 
-use Lab123\Odin\Enums\Response;
+use Lab123\Odin\Enums\Responses;
 use Lab123\Odin\Entities\Entity;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Log;
 use App;
 
@@ -14,10 +16,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function continues()
+    public function continues()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_CONTINUE);
+        return $this->response($this->getData($args), Responses::HTTP_CONTINUE);
     }
 
     /**
@@ -25,10 +27,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function success()
+    public function success()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_OK);
+        return $this->response($this->getData($args), Responses::HTTP_OK);
     }
 
     /**
@@ -36,10 +38,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function created()
+    public function created()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_CREATED);
+        return $this->response($this->getData($args), Responses::HTTP_CREATED);
     }
 
     /**
@@ -47,10 +49,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function bad()
+    public function bad()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_BAD_REQUEST);
+        return $this->response($this->getData($args), Responses::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -58,10 +60,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function unauthorized()
+    public function unauthorized()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_UNAUTHORIZED);
+        return $this->response($this->getData($args), Responses::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -69,10 +71,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function notFound()
+    public function notFound()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_NOT_FOUND);
+        return $this->response($this->getData($args), Responses::HTTP_NOT_FOUND);
     }
 
     /**
@@ -80,10 +82,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function internalError()
+    public function internalError()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_INTERNAL_SERVER_ERROR);
+        return $this->response($this->getData($args), Responses::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -91,10 +93,10 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function conflict()
+    public function conflict()
     {
         $args = func_get_args();
-        return $this->response($this->getData($args), Response::HTTP_CONFLICT);
+        return $this->response($this->getData($args), Responses::HTTP_CONFLICT);
     }
 
     /**
@@ -102,7 +104,7 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function response(array $data, $http_code)
+    public function response(array $data, $http_code)
     {
         return response()->json($data, $http_code);
     }
@@ -112,7 +114,7 @@ trait ApiResponse
      *
      * @return \Illuminate\Http\Response
      */
-    protected function exception(\Exception $ex)
+    public function exception(\Exception $ex)
     {
         $log = [
             'error' => $ex->getMessage(),
@@ -148,14 +150,26 @@ trait ApiResponse
         }
         
         /* Enviou um array como parâmetro */
-        if (is_array($args[1])) {
-            return $args[1];
+        if (is_array($args[0])) {
+            return $args[0];
+        }
+        
+        /* Enviou um Paginador como parâmetro */
+        if (is_a($args[0], LengthAwarePaginator::class)) {
+            $paginator = ($args[0]);
+            $data = $paginator->toArray();
+        }
+        
+        /* Enviou uma Coleção como parâmetro */
+        if (is_a($args[0], Collection::class)) {
+            $collection = ($args[0]);
+            $data = $collection->toArray();
         }
         
         /* Enviou uma Entidade como parâmetro */
-        if (is_a($args[1], Entity::class)) {
-            $entity = ($args[1]);
-            $data = $entity->toArray();
+        if (is_a($args[0], Entity::class)) {
+            $entity = ($args[0]);
+            $data['data'] = $entity->transform();
         }
         
         return $data;

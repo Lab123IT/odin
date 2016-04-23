@@ -2,6 +2,7 @@
 namespace Lab123\Odin\Libs;
 
 use Lab123\Odin\Entities\Entity;
+use Lab123\Odin\Requests\FilterRequest;
 use DB;
 
 class Search
@@ -9,50 +10,23 @@ class Search
 
     protected $entity;
 
-    protected $request;
-
-    protected $fields = '*';
-
-    protected $criteria;
-
-    protected $includes;
-
-    protected $limit = '50';
-
-    protected $order;
-
     protected $builder;
 
-    public function __construct(Entity $entity, array $data)
+    protected $filters;
+
+    public function __construct(Entity $entity, FilterRequest $filters)
     {
-        $this->entity = $entity;
-        $this->builder = $entity;
-        
-        $this->setFields(array_get($data, 'fields'));
-        $this->setCriteria(array_get($data, 'criteria'));
-        $this->setIncludes(array_get($data, 'includes'));
-        $this->setLimit(array_get($data, 'limit'));
-        $this->setOrder(array_get($data, 'order'));
-        
-        $this->searchFields($data);
+        $this->builder = $this->entity = $entity;
+        // $this->builder = $entity;
+        $this->filters = $filters;
         
         $this->filter();
-    }
-
-    protected function searchFields($data)
-    {
-        $builder = '';
-        if (method_exists($this->entity, 'searchFields')) {
-            $builder = $this->entity->searchFields($data);
-        }
-        
-        $this->builder = ($builder) ? $builder : $this->builder;
     }
 
     /**
      * Transform object into a generic filter
      *
-     * @var Model
+     * @return this
      */
     public function filter()
     {
@@ -65,40 +39,71 @@ class Search
         return $this;
     }
 
+    /**
+     * Generate Paginate data
+     *
+     * @return paginate
+     */
     public function paginate()
     {
-        $paginate = $this->builder->paginate($this->limit);
+        $paginate = $this->builder->paginate($this->filters->limit);
+        
         $paginate->setPath('');
         return $paginate;
     }
 
+    /**
+     * Generate Simple Paginate data
+     *
+     * @return paginate
+     */
     public function simplePaginate()
     {
-        $paginate = $this->builder->simplePaginate($this->limit);
+        $paginate = $this->builder->simplePaginate($this->filters->limit);
         $paginate->setPath('');
         return $paginate;
     }
 
+    /**
+     * Return Collection of resource
+     *
+     * @return Illuminate\Database\Eloquent\Collection
+     */
     public function get()
     {
         return $this->builder->get();
     }
 
+    /**
+     * Return one resource
+     *
+     * @return Illuminate\Database\Eloquent\Model
+     */
     public function first()
     {
         return $this->builder->first();
     }
 
+    /**
+     * Set fields to return in select
+     *
+     * @return this
+     */
     public function fields()
     {
-        $this->builder = $this->builder->select($this->fields);
+        $this->builder = $this->builder->select($this->filters->fields);
         
         return $this;
     }
 
+    /**
+     * Set criteria where to return in select
+     *
+     * @return this
+     */
     public function criteria()
     {
-        foreach ($this->criteria as $c) {
+        foreach ($this->filters->criteria as $c) {
             
             $c = explode(',', $c);
             
@@ -108,23 +113,33 @@ class Search
         return $this;
     }
 
+    /**
+     * Set includes to return in select
+     *
+     * @return this
+     */
     public function includes()
     {
-        foreach ($this->includes as $include) {
+        foreach ($this->filters->includes as $include) {
             $this->builder = $this->builder->with($include);
         }
         
         return $this;
     }
 
+    /**
+     * Set order to return in select
+     *
+     * @return this
+     */
     public function orderBy()
     {
-        if (end($this->order) == "random") {
+        if (end($this->filters->order) == "random") {
             $this->builder = $this->builder->orderBy($this->random());
             return $this;
         }
         
-        foreach ($this->order as $order) {
+        foreach ($this->filters->order as $order) {
             
             $order = explode(',', $order);
             
@@ -136,38 +151,23 @@ class Search
         return $this;
     }
 
+    /**
+     * Set limit to return in select
+     *
+     * @return this
+     */
     public function limit()
     {
-        $this->builder = $this->builder->take((int) $this->limit);
+        $this->builder = $this->builder->take((int) $this->filters->limit);
         
         return $this;
     }
 
-    private function setFields($fields)
-    {
-        $this->fields = (empty($fields)) ? '*' : array_filter(explode(',', $fields));
-    }
-
-    public function setCriteria($criteria)
-    {
-        $this->criteria = (empty($criteria)) ? [] : $criteria;
-    }
-
-    private function setIncludes($includes)
-    {
-        $this->includes = (empty($includes)) ? [] : array_filter(explode(',', $includes));
-    }
-
-    private function setLimit($limit)
-    {
-        $this->limit = (empty($limit)) ? $this->limit : $limit;
-    }
-
-    private function setOrder($order)
-    {
-        $this->order = (empty($order)) ? [] : $order;
-    }
-
+    /**
+     * Set limit to return in select
+     *
+     * @return this
+     */
     private function random()
     {
         /* Funções para random de cada um dos SGBDs tradicionais */

@@ -3,7 +3,8 @@ namespace Lab123\Odin\Controllers;
 
 use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
-use Illuminate\Http\Request;
+use Lab123\Odin\Requests\FilterRequest;
+use Lab123;
 
 class ApiController extends Controller
 {
@@ -16,11 +17,9 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(FilterRequest $filters)
     {
-        $data = $this->repository->filter($request->all())
-            ->get()
-            ->toArray();
+        $data = $this->repository->filter($filters)->paginate();
         
         return $this->success($data);
     }
@@ -30,14 +29,13 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id, Request $request)
+    public function show($id, FilterRequest $filters)
     {
-        $filters = $request->all();
-        $filters['criteria'][] = 'id,=,' . $id;
+        $data = $this->repository->find($id);
         
-        $data = $this->repository->filter($filters)
-            ->first()
-            ->toArray();
+        if (! $data) {
+            return $this->notFound();
+        }
         
         return $this->success($data);
     }
@@ -47,7 +45,7 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(FilterRequest $request)
     {
         $input = $request->all();
         $data = $this->repository->create($input);
@@ -60,13 +58,17 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(FilterRequest $request, $id)
     {
-        $input = $request->all();
+        $resource = $this->repository->find($id);
         
-        $data = $this->repository->find($id)->update($input);
+        if (! $resource) {
+            return $this->notFound();
+        }
         
-        return $this->success($data);
+        $result = $resource->update($input);
+        
+        return $this->success($result);
     }
 
     /**
@@ -76,8 +78,14 @@ class ApiController extends Controller
      */
     public function destroy($id)
     {
-        $data = $this->repository->where('id', $id)->delete();
+        $resource = $this->repository->find($id);
         
-        return $this->success($data);
+        if (! $resource) {
+            return $this->notFound();
+        }
+        
+        $result = $resource->delete();
+        
+        return $this->success($result);
     }
 }
