@@ -8,6 +8,7 @@ use App;
 
 class LumenApiController extends ApiController
 {
+
     protected $repository;
 
     /**
@@ -29,8 +30,6 @@ class LumenApiController extends ApiController
      */
     public function store(FilterRequest $request)
     {
-        $id = $this->getRealId($id);
-        
         return parent::store($filters);
     }
 

@@ -25,7 +25,6 @@
     "minimum-stability": "stable",
     "require": {
         "illuminate/support": "~5",
-        "hashids/hashids": "^1.0",
-        "barryvdh/laravel-cors": "^0.8.0"
+        "hashids/hashids": "^1.0"
     }
 }
