@@ -16,3 +16,31 @@
 <p>Repositories	-> Funcionalidades para Design Partern Repository (CRUD);</p>
 <p>Traits:</p>
 <p>ApiResponse -> Gerencia todas as respostas básicas da API, com códigos de retorno padrão HTTP</p>
+
+<h2>Lumen</h2>
+
+<p>Registrar o service provider (bootstrap/app):</p>
+
+<p>$app->register(Lab123\Odin\Providers\LumenServiceProvider::class);</p>
+
+
+Registrar em Console\Kernel.php
+
+protected $commands = [
+    \Lab123\Odin\Command\LumenVendorPublish::class
+]
+
+php artisan vendor:publish
+
+Registrar no composer os helpers:
+
+"autoload": {
+    "psr-4": {
+        "App\\": "app/"
+    },
+    "files": [
+        "app/Helpers/helpers.php"
+    ]
+},
+
+<p>Usar LumenApiController</p>

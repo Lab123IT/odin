@@ -4,7 +4,6 @@ namespace Lab123\Odin\Controllers;
 use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
 use Lab123\Odin\Requests\FilterRequest;
-//use Laravel\Lumen\Routing\Controller;
 use App;
 
 class ApiController extends Controller
@@ -32,8 +31,6 @@ class ApiController extends Controller
      */
     public function show($id, FilterRequest $filters)
     {
-        $id = $this->getRealId($id);
-        
         $data = $this->repository->find($id);
         
         if (! $data) {
@@ -63,8 +60,6 @@ class ApiController extends Controller
      */
     public function update(FilterRequest $request, $id)
     {
-        $id = $this->getRealId($id);
-        
         $resource = $this->repository->find($id);
         
         if (! $resource) {
@@ -83,8 +78,6 @@ class ApiController extends Controller
      */
     public function destroy($id)
     {
-        $id = $this->getRealId($id);
-        
         $resource = $this->repository->find($id);
         
         if (! $resource) {
@@ -94,27 +87,5 @@ class ApiController extends Controller
         $result = $resource->delete();
         
         return $this->success($result);
-    }
-
-    /**
-     * Return decoded Id or actual Id.
-     *
-     * @return $id
-     */
-    private function getRealId($id)
-    {
-        if (config('odin.hashid.active')) {
-            $hashids = App::make('Hashids');
-            
-            $id_decoded = $hashids->decode($id);
-            
-            if (count($id_decoded) < 1) {
-                return ApiResponse::notFound();
-            }
-            
-            $id = $id_decoded[0];
-        }
-        
-        return $id;
     }
 }

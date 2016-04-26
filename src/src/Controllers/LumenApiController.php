@@ -4,26 +4,11 @@ namespace Lab123\Odin\Controllers;
 use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
 use Lab123\Odin\Requests\FilterRequest;
-//use Laravel\Lumen\Routing\Controller;
 use App;
 
-class ApiController extends Controller
+class LumenApiController extends ApiController
 {
-    use ApiResponse, ApiUser;
-
     protected $repository;
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(FilterRequest $filters)
-    {
-        $data = $this->repository->filter($filters)->paginate();
-        
-        return $this->success($data);
-    }
 
     /**
      * Display one resource by id.
@@ -34,13 +19,7 @@ class ApiController extends Controller
     {
         $id = $this->getRealId($id);
         
-        $data = $this->repository->find($id);
-        
-        if (! $data) {
-            return $this->notFound();
-        }
-        
-        return $this->success($data);
+        return parent::show($id, $filters);
     }
 
     /**
@@ -50,10 +29,9 @@ class ApiController extends Controller
      */
     public function store(FilterRequest $request)
     {
-        $input = $request->all();
-        $data = $this->repository->create($input);
+        $id = $this->getRealId($id);
         
-        return $this->created($data);
+        return parent::store($filters);
     }
 
     /**
@@ -65,15 +43,7 @@ class ApiController extends Controller
     {
         $id = $this->getRealId($id);
         
-        $resource = $this->repository->find($id);
-        
-        if (! $resource) {
-            return $this->notFound();
-        }
-        
-        $result = $resource->update($input);
-        
-        return $this->success($result);
+        return parent::update($request, $id);
     }
 
     /**
@@ -85,15 +55,7 @@ class ApiController extends Controller
     {
         $id = $this->getRealId($id);
         
-        $resource = $this->repository->find($id);
-        
-        if (! $resource) {
-            return $this->notFound();
-        }
-        
-        $result = $resource->delete();
-        
-        return $this->success($result);
+        return parent::destroy($id);
     }
 
     /**
