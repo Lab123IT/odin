@@ -169,7 +169,7 @@ trait ApiResponse
         /* Enviou uma Entidade como parâmetro */
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
-            $data['data'] = $entity->transform();
+            $data['data'] = $entity->toArray();
         }
         
         return $data;

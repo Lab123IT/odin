@@ -30,7 +30,7 @@ class LumenApiController extends ApiController
      */
     public function store(FilterRequest $request)
     {
-        return parent::store($filters);
+        return parent::store($request);
     }
 
     /**

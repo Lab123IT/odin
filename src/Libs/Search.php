@@ -17,10 +17,9 @@ class Search
     public function __construct(Entity $entity, FilterRequest $filters)
     {
         $this->builder = $this->entity = $entity;
-        // $this->builder = $entity;
         $this->filters = $filters;
         
-        $this->filter();
+        $this->setFilters();
     }
 
     /**
@@ -28,60 +27,23 @@ class Search
      *
      * @return this
      */
-    public function filter()
+    public function setFilters()
     {
         $this->fields()
             ->includes()
             ->limit()
             ->orderBy()
             ->criteria();
-        
-        return $this;
     }
 
     /**
-     * Generate Paginate data
+     * Return Query Builder with filters
      *
-     * @return paginate
+     * @return this
      */
-    public function paginate()
+    public function getBuilder()
     {
-        $paginate = $this->builder->paginate($this->filters->limit);
-        
-        $paginate->setPath('');
-        return $paginate;
-    }
-
-    /**
-     * Generate Simple Paginate data
-     *
-     * @return paginate
-     */
-    public function simplePaginate()
-    {
-        $paginate = $this->builder->simplePaginate($this->filters->limit);
-        $paginate->setPath('');
-        return $paginate;
-    }
-
-    /**
-     * Return Collection of resource
-     *
-     * @return Illuminate\Database\Eloquent\Collection
-     */
-    public function get()
-    {
-        return $this->builder->get();
-    }
-
-    /**
-     * Return one resource
-     *
-     * @return Illuminate\Database\Eloquent\Model
-     */
-    public function first()
-    {
-        return $this->builder->first();
+        return $this->builder;
     }
 
     /**

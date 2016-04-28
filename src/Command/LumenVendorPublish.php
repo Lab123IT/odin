@@ -2,12 +2,9 @@
 namespace Lab123\Odin\Command;
 
 use Illuminate\Console\Command;
-use League\Flysystem\MountManager;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
-use League\Flysystem\Filesystem as Flysystem;
 use Symfony\Component\Console\Input\InputOption;
-use League\Flysystem\Adapter\Local as LocalAdapter;
 
 class LumenVendorPublish extends Command
 {
@@ -95,15 +92,8 @@ class LumenVendorPublish extends Command
      */
     protected function publishDirectory($from, $to)
     {
-        $manager = new MountManager([
-            'from' => new Flysystem(new LocalAdapter($from)),
-            'to' => new Flysystem(new LocalAdapter($to))
-        ]);
-        foreach ($manager->listContents('from://', true) as $file) {
-            if ($file['type'] === 'file' && (! $manager->has('to://' . $file['path']) || $this->option('force'))) {
-                $manager->put('to://' . $file['path'], $manager->read('from://' . $file['path']));
-            }
-        }
+        $this->files->copyDirectory($from, $to);
+        
         $this->status($from, $to, 'Directory');
     }
 

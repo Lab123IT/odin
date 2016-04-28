@@ -5,14 +5,25 @@ use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Libs\Api;
 use Lab123\Odin\Libs\Search;
 use Lab123\Odin\Requests\FilterRequest;
+use Request;
 
 abstract class Repository implements IRepository
 {
-
+    // $filters->getUri()
     /**
      * Model reference
      */
     protected $model;
+
+    /**
+     * Builder of Model
+     */
+    protected $builder;
+
+    /**
+     * Builder of Model
+     */
+    protected $filtersRequest;
 
     /**
      * Return a resource by id
@@ -93,41 +104,41 @@ abstract class Repository implements IRepository
      */
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null, $include = null, $fields = null)
     {
-        $model = $this->model;
+        $this->builder = $this->model;
         
         if (count($criteria) == count($criteria, COUNT_RECURSIVE)) {
             if (count($criteria) > 0) {
-                $model = $model->where($criteria[0], $criteria[1], $criteria[2]);
+                $this->builder = $this->builder->where($criteria[0], $criteria[1], $criteria[2]);
             }
         } else {
             foreach ($criteria as $c) {
-                $model = $model->where($c[0], $c[1], $c[2]);
+                $this->builder = $this->builder->where($c[0], $c[1], $c[2]);
             }
         }
         
         if ($orderBy !== null) {
             foreach ($orderBy as $order) {
-                $model = $model->orderBy($order[0], $order[1]);
+                $this->builder = $this->builder->orderBy($order[0], $order[1]);
             }
         }
         
         if ($limit !== null) {
-            $model = $model->take((int) $limit);
+            $this->builder = $this->builder->take((int) $limit);
         }
         
         if ($offset !== null) {
-            $model = $model->skip((int) $offset);
+            $this->builder = $this->builder->skip((int) $offset);
         }
         
         if ($include !== null) {
-            $model = $model->with($include);
+            $this->builder = $this->builder->with($include);
         }
         
         if ($fields !== null) {
-            $model = $model->select($fields);
+            $this->builder = $this->builder->select($fields);
         }
         
-        return $model->get();
+        return $this->builder->get();
     }
 
     /**
@@ -142,6 +153,53 @@ abstract class Repository implements IRepository
     }
 
     /**
+     * Paginate the given query into a simple paginator.
+     *
+     * @param int $perPage            
+     * @param array $columns            
+     * @param string $pageName            
+     * @param int|null $page            
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function get()
+    {
+        return $this->builder->get();
+    }
+
+    /**
+     * Paginate the given query into a simple paginator.
+     *
+     * @param int $perPage            
+     * @param array $columns            
+     * @param string $pageName            
+     * @param int|null $page            
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
+    {
+        $paginate = $this->builder->paginate($perPage, $columns, $pageName, $page);
+        $paginate->setPath(Request::fullUrl());
+        return $paginate;
+    }
+
+    /**
+     * Get a paginator only supporting simple next and previous links.
+     *
+     * This is more efficient on larger data-sets, etc.
+     *
+     * @param int $perPage            
+     * @param array $columns            
+     * @param string $pageName            
+     * @return \Illuminate\Contracts\Pagination\Paginator
+     */
+    public function simplePaginate($perPage = 15, $columns = ['*'], $pageName = 'page')
+    {
+        $paginate = $this->builder->simplePaginate($perPage, $columns, $pageName);
+        $paginate->setPath(Request::fullUrl());
+        return $paginate;
+    }
+
+    /**
      * Filter the Entity
      *
      * @param Lab123\Odin\Requests\FilterRequest $filters            
@@ -149,6 +207,36 @@ abstract class Repository implements IRepository
      */
     public function filter(FilterRequest $filters)
     {
-        return new Search($this->model, $filters);
+        $search = new Search($this->model, $filters);
+        $this->builder = $search->getBuilder();
+        
+        return $this;
+    }
+
+    /**
+     * Rules of Entity
+     *
+     * @param array $fields            
+     * @return array
+     */
+    public function getRules(array $fields = [])
+    {
+        $default_rules = $this->model->getRules();
+        
+        if (count($fields) < 1) {
+            return $default_rules;
+        }
+        
+        $rules = [];
+        foreach ($fields as $field => $rule) {
+            if (is_int($field)) {
+                $rules[$rule] = $default_rules[$rule];
+                continue;
+            }
+            
+            $rules[$field] = $default_rules[$field] . $rule;
+        }
+        
+        return $rules;
     }
 }

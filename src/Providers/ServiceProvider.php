@@ -15,6 +15,8 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->publishConfigs();
+        
+        $this->publishTranslate();
     }
 
     /**
@@ -27,6 +29,20 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishes([
             __DIR__ . '/../Config/odin.php' => $this->config_path('odin.php')
         ]);
+    }
+
+    /**
+     * Publish translate.
+     *
+     * @return void
+     */
+    public function publishTranslate()
+    {
+        $this->publishes([
+            __DIR__ . '/../Resources/Lang/pt-BR' => app()->basePath('resources/lang/pt-BR')
+        ]);
+        
+        app('translator')->setLocale('pt-BR');
     }
 
     /**

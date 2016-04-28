@@ -16,7 +16,7 @@ class FilterRequest
 
     public $limit = 12;
 
-    public $maxLimit = 36;
+    public $maxLimit = 50;
 
     public $order;
 

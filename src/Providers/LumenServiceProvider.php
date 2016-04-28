@@ -25,11 +25,9 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function publishHelper()
     {
-        if (! function_exists('config_path')) {
-            $this->publishes([
-                __DIR__ . '/../Helpers/helpers.php' => $this->config_path('helpers.php')
-            ]);
-        }
+        $this->publishes([
+            __DIR__ . '/../Helpers/helpers.php' => $this->config_path('helpers.php')
+        ]);
     }
 
     /**
@@ -55,6 +53,7 @@ class LumenServiceProvider extends ServiceProvider
         
         if (! class_exists('App')) {
             class_alias('Illuminate\Support\Facades\App', 'App');
+            class_alias('Illuminate\Support\Facades\Request', 'Request');
             class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
             
             app()->withFacades();

@@ -47,10 +47,22 @@ class ApiController extends Controller
      */
     public function store(FilterRequest $request)
     {
+        $this->validateStore($request);
+        
         $input = $request->all();
         $data = $this->repository->create($input);
         
         return $this->created($data);
+    }
+
+    /**
+     * Validate store action
+     *
+     * @return void
+     */
+    protected function validateStore(FilterRequest $request)
+    {
+        $this->validate($request->request, $this->repository->getRules([]));
     }
 
     /**
@@ -69,6 +81,16 @@ class ApiController extends Controller
         $result = $resource->update($input);
         
         return $this->success($result);
+    }
+
+    /**
+     * Validate store action
+     *
+     * @return void
+     */
+    protected function validateUpdate(FilterRequest $request)
+    {
+        $this->validate($request->request, $this->repository->getRules([]));
     }
 
     /**
