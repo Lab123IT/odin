@@ -177,8 +177,11 @@ abstract class Repository implements IRepository
      */
     public function paginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
+        /* Strip param page from URL */
+        $url = preg_replace('/&?page=[^&]*/', '', Request::fullUrl());
+        
         $paginate = $this->builder->paginate($perPage, $columns, $pageName, $page);
-        $paginate->setPath(Request::fullUrl());
+        $paginate->setPath($url);
         return $paginate;
     }
 
@@ -194,8 +197,11 @@ abstract class Repository implements IRepository
      */
     public function simplePaginate($perPage = 15, $columns = ['*'], $pageName = 'page')
     {
+        /* Strip param page from URL */
+        $url = preg_replace('/&?page=[^&]*/', '', Request::fullUrl());
+        
         $paginate = $this->builder->simplePaginate($perPage, $columns, $pageName);
-        $paginate->setPath(Request::fullUrl());
+        $paginate->setPath($url);
         return $paginate;
     }
 
