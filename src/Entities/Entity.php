@@ -78,7 +78,7 @@ abstract class Entity extends Model
     public function getResourceData()
     {
         return [
-            'resource' => $this->getResource(),
+            'type' => $this->getResource(),
             'uri' => url() . '/' . $this->getResource() . '/' . $this->getId()
         ];
     }
