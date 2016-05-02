@@ -33,7 +33,7 @@ abstract class Entity extends Model
         parent::__construct($attributes);
         
         /* Adiciona o Hash Id nas entidades */
-        if (config('odin.hashid')) {
+        if (config('odin.hashid.active')) {
             self::addPublicId();
         }
     }
@@ -79,7 +79,7 @@ abstract class Entity extends Model
     {
         return [
             'type' => $this->getResource(),
-            'uri' => url() . '/' . $this->getResource() . '/' . $this->getId()
+            'uri' => $this->getResourceURL()
         ];
     }
 
@@ -90,9 +90,10 @@ abstract class Entity extends Model
      */
     public function getId()
     {
-        if (config('odin.hashid')) {
+        if (config('odin.hashid.active')) {
             return $this->getPublicIdAttribute();
         }
+        
         return $this->id;
     }
 
@@ -103,8 +104,11 @@ abstract class Entity extends Model
      */
     protected function getPublicIdAttribute()
     {
-        $hashids = App::make('Hashids');
-        return $hashids->encode($this->attributes['id']);
+        if ($id = $this->decodeHashId($this->attributes['id'])) {
+            return $id[0];
+        }
+        
+        return $this->encodeHashId($this->attributes['id']);
     }
 
     /**
@@ -114,16 +118,9 @@ abstract class Entity extends Model
      */
     protected function setPublicIdAttribute($value)
     {
-        $hashids = App::make('Hashids');
-        $this->attributes['public_id'] = $hashids->decode($this->attributes['id']);
+        $this->attributes['public_id'] = $this->decodeHashId($this->attributes['id']);
     }
 
-    /**
-     * Get an attribute array of all arrayable attributes.
-     *
-     * @return array
-     */
-    
     /**
      * Convert the model's attributes to an array.
      *
@@ -208,5 +205,27 @@ abstract class Entity extends Model
         }
         
         return $transforms;
+    }
+
+    /**
+     * Return Id Decoded
+     *
+     * @return array
+     */
+    private function decodeHashId($idHashed)
+    {
+        $hashids = App::make('Hashids');
+        return $hashids->decode($idHashed);
+    }
+
+    /**
+     * Return Id Encoded
+     *
+     * @return array
+     */
+    private function encodeHashId($id)
+    {
+        $hashids = App::make('Hashids');
+        return $hashids->encode($id);
     }
 }

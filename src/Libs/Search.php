@@ -53,7 +53,12 @@ class Search
      */
     public function fields()
     {
-        $this->builder = $this->builder->select($this->filters->fields);
+        $fields = $this->filters->fields;
+        if ($this->filters->fields[0] != '*') {
+            $fields = $this->getOnlyAvailableAttributes($fields);
+        }
+        
+        $this->builder = $this->builder->select($fields);
         
         return $this;
     }
@@ -65,11 +70,15 @@ class Search
      */
     public function criteria()
     {
-        foreach ($this->filters->criteria as $c) {
+        foreach ($this->filters->criteria as $criteria) {
             
-            $c = explode(',', $c);
+            list ($field, $operator, $value) = explode(',', $criteria);
             
-            $this->builder = $this->builder->where($c[0], $c[1], $c[2]);
+            if (!$fields = $this->getOnlyAvailableAttributes([$field])) {
+                continue;
+            }
+            
+            $this->builder = $this->builder->where($field, $operator, $value);
         }
         
         return $this;
@@ -145,5 +154,21 @@ class Search
         $driver = $this->entity->getConnection()->getDriverName();
         
         return DB::raw($randomFunctions[$driver]);
+    }
+
+    private function getOnlyAvailableAttributes(array $verify = [])
+    {
+        $fillable = array_flip($this->entity->getFillable());
+        
+        //$this->entity->getTransformation()
+        
+        $availableAttributes = [];
+        foreach ($verify as $k => $v) {
+            if (key_exists($v, $fillable)) {
+                $availableAttributes[$k] = $v;
+            }
+        }
+        
+        return $availableAttributes;
     }
 }

@@ -9,7 +9,7 @@ use Request;
 
 abstract class Repository implements IRepository
 {
-    // $filters->getUri()
+
     /**
      * Model reference
      */
@@ -240,7 +240,7 @@ abstract class Repository implements IRepository
                 continue;
             }
             
-            $rules[$field] = $default_rules[$field] . $rule;
+            $rules[$field] = $default_rules[$field] . '|' . $rule;
         }
         
         return $rules;

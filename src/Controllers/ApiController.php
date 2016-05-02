@@ -21,6 +21,10 @@ class ApiController extends Controller
     {
         $data = $this->repository->filter($filters)->paginate();
         
+        if ($data->count() < 1) {
+            return $this->notFound();
+        }
+        
         return $this->success($data);
     }
 
@@ -72,13 +76,15 @@ class ApiController extends Controller
      */
     public function update(FilterRequest $request, $id)
     {
+        $this->validateUpdate($request);
+        
         $resource = $this->repository->find($id);
         
         if (! $resource) {
             return $this->notFound();
         }
         
-        $result = $resource->update($input);
+        $result = $resource->update($request->all());
         
         return $this->success($result);
     }
