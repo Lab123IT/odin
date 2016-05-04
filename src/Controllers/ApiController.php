@@ -5,12 +5,25 @@ use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
 use Lab123\Odin\Requests\FilterRequest;
 use App;
+use DB;
 
 class ApiController extends Controller
 {
     use ApiResponse, ApiUser;
 
+    /**
+     * Instance of Repository.
+     *
+     * @var $repository Repository
+     */
     protected $repository;
+
+    /**
+     * Array autoload Entities.
+     *
+     * @var $loads array
+     */
+    protected $loads = [];
 
     /**
      * Display a listing of the resource.
@@ -19,13 +32,15 @@ class ApiController extends Controller
      */
     public function index(FilterRequest $filters)
     {
-        $data = $this->repository->filter($filters)->paginate();
+        $resources = $this->repository->filter($filters)->paginate();
         
-        if ($data->count() < 1) {
+        $resources = $this->autoloadRelationships($resources);
+        
+        if ($resources->count() < 1) {
             return $this->notFound();
         }
         
-        return $this->success($data);
+        return $this->success($resources);
     }
 
     /**
@@ -35,13 +50,15 @@ class ApiController extends Controller
      */
     public function show($id, FilterRequest $filters)
     {
-        $data = $this->repository->find($id);
+        $resource = $this->repository->find($id);
         
-        if (! $data) {
+        $resources = $this->autoloadRelationships($resource);
+        
+        if (! $resource) {
             return $this->notFound();
         }
         
-        return $this->success($data);
+        return $this->success($resource);
     }
 
     /**
@@ -54,9 +71,11 @@ class ApiController extends Controller
         $this->validateStore($request);
         
         $input = $request->all();
-        $data = $this->repository->create($input);
+        $resource = $this->repository->create($input);
         
-        return $this->created($data);
+        $resources = $this->autoloadRelationships($resource);
+        
+        return $this->created($resource);
     }
 
     /**
@@ -84,7 +103,9 @@ class ApiController extends Controller
             return $this->notFound();
         }
         
-        $resource->update($request->all());
+        $resource = $resource->update($request->all());
+        
+        $resources = $this->autoloadRelationships($resource);
         
         return $this->success($resource);
     }
@@ -115,5 +136,14 @@ class ApiController extends Controller
         $result = $resource->delete();
         
         return $this->success($result);
+    }
+
+    private function autoloadRelationships($resources)
+    {
+        foreach ($this->loads as $load) {
+            $resources->load($load);
+        }
+        
+        return $resources;
     }
 }

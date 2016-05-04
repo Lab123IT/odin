@@ -26,7 +26,7 @@ class LumenServiceProvider extends ServiceProvider
     public function publishHelper()
     {
         $this->publishes([
-            __DIR__ . '/../Helpers/helpers.php' => $this->config_path('helpers.php')
+            __DIR__ . '/../Helpers/helpers.php' => app()->basePath('app/Supports/') . 'helpers.php'
         ]);
     }
 

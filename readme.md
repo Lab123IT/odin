@@ -39,7 +39,7 @@ Registrar no composer os helpers:
         "App\\": "app/"
     },
     "files": [
-        "app/Helpers/helpers.php"
+        "app/Supports/helpers.php"
     ]
 },
 

@@ -134,7 +134,7 @@ abstract class Entity extends Model
     }
 
     /**
-     * Transform Model to Front
+     * Transform attributes model.
      *
      * @return array
      */
@@ -142,6 +142,10 @@ abstract class Entity extends Model
     {
         $transformation = $this->getTransformation();
         $transformed = [];
+        
+        if (key_exists('public_id', $array)) {
+            $transformed['id'] = $array['public_id'];
+        }
         
         foreach ($transformation as $name => $new_name) {
             if (! key_exists($name, $array)) {
@@ -151,32 +155,7 @@ abstract class Entity extends Model
             $transformed[$new_name] = $array[$name];
         }
         
-        if (key_exists('public_id', $array)) {
-            $transformed['id'] = $array['public_id'];
-        }
-        
         $transformed['resource'] = $this->getResourceData();
-        
-        return $transformed;
-    }
-
-    /**
-     * Transform Front to Model
-     *
-     * @return array
-     */
-    public function transformFromFront(array $array)
-    {
-        $transformation = $this->getTransformation();
-        $transformed = [];
-        
-        foreach ($transformation as $name => $new_name) {
-            if (! key_exists($new_name, $array)) {
-                continue;
-            }
-            
-            $transformed[$name] = $array[$new_name];
-        }
         
         return $transformed;
     }
