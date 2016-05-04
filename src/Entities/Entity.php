@@ -134,7 +134,7 @@ abstract class Entity extends Model
     }
 
     /**
-     * Transforma a entidade
+     * Transform Model to Front
      *
      * @return array
      */
@@ -156,6 +156,27 @@ abstract class Entity extends Model
         }
         
         $transformed['resource'] = $this->getResourceData();
+        
+        return $transformed;
+    }
+
+    /**
+     * Transform Front to Model
+     *
+     * @return array
+     */
+    public function transformFromFront(array $array)
+    {
+        $transformation = $this->getTransformation();
+        $transformed = [];
+        
+        foreach ($transformation as $name => $new_name) {
+            if (! key_exists($new_name, $array)) {
+                continue;
+            }
+            
+            $transformed[$name] = $array[$new_name];
+        }
         
         return $transformed;
     }

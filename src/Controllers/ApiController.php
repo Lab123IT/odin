@@ -84,9 +84,9 @@ class ApiController extends Controller
             return $this->notFound();
         }
         
-        $result = $resource->update($request->all());
+        $resource->update($request->all());
         
-        return $this->success($result);
+        return $this->success($resource);
     }
 
     /**

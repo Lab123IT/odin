@@ -54,7 +54,7 @@ abstract class Repository implements IRepository
      */
     public function create(array $data)
     {
-        return $this->model->create($data);
+        return $this->model->create($this->model->transformFromFront($data));
     }
 
     /**
@@ -77,7 +77,7 @@ abstract class Repository implements IRepository
      */
     public function update(array $data, $id)
     {
-        return $this->model->find($id)->update($data);
+        return $this->model->find($id)->update($this->model->transformFromFront($data));
     }
 
     /**
@@ -232,6 +232,14 @@ abstract class Repository implements IRepository
         if (count($fields) < 1) {
             return $default_rules;
         }
+        
+        $default_rules2 = [];
+        $transformation = $this->model->getTransformation();
+        foreach ($transformation as $original => $transformed) {
+            $default_rules2[$transformed] = $default_rules[$original];
+        }
+        
+        $default_rules = $default_rules2;
         
         $rules = [];
         foreach ($fields as $field => $rule) {
