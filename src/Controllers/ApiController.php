@@ -34,11 +34,11 @@ class ApiController extends Controller
     {
         $resources = $this->repository->filter($filters)->paginate();
         
-        $resources = $this->autoloadRelationships($resources);
-        
         if ($resources->count() < 1) {
             return $this->notFound();
         }
+        
+        $resources = $this->autoloadRelationships($resources);
         
         return $this->success($resources);
     }
@@ -52,11 +52,11 @@ class ApiController extends Controller
     {
         $resource = $this->repository->find($id);
         
-        $resources = $this->autoloadRelationships($resource);
-        
         if (! $resource) {
             return $this->notFound();
         }
+        
+        $resources = $this->autoloadRelationships($resource);
         
         return $this->success($resource);
     }
@@ -72,6 +72,10 @@ class ApiController extends Controller
         
         $input = $request->all();
         $resource = $this->repository->create($input);
+        
+        if (! $resource) {
+            return $this->notFound();
+        }
         
         $resources = $this->autoloadRelationships($resource);
         

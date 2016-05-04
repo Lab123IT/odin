@@ -1,7 +1,6 @@
 <?php
 namespace Lab123\Odin\Controllers;
 
-use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
 use Lab123\Odin\Requests\FilterRequest;
 use App;
@@ -70,7 +69,7 @@ class LumenApiController extends ApiController
             $id_decoded = $hashids->decode($id);
             
             if (count($id_decoded) < 1) {
-                return ApiResponse::notFound();
+                return $this->notFound();
             }
             
             $id = $id_decoded[0];

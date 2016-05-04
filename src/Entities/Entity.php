@@ -105,7 +105,7 @@ abstract class Entity extends Model
     protected function getPublicIdAttribute()
     {
         if ($id = $this->decodeHashId($this->attributes['id'])) {
-            return $id[0];
+            return $id;
         }
         
         return $this->encodeHashId($this->attributes['id']);
@@ -215,7 +215,9 @@ abstract class Entity extends Model
     private function decodeHashId($idHashed)
     {
         $hashids = App::make('Hashids');
-        return $hashids->decode($idHashed);
+        $hashId = $hashids->decode($idHashed);
+        
+        return (count($hashId) > 0)? $hashId[0] : '';
     }
 
     /**
@@ -226,6 +228,6 @@ abstract class Entity extends Model
     private function encodeHashId($id)
     {
         $hashids = App::make('Hashids');
-        return $hashids->encode($id);
+        return $hashids->encode($id, time());
     }
 }
