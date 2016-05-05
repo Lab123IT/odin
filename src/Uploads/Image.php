@@ -76,16 +76,6 @@ class Image
     ];
 
     /**
-     * Fill data object
-     *
-     * @return void
-     */
-    public function __construct(UploadedFile $file = null, $name = '')
-    {
-        $this->fill(compact('file', 'name'));
-    }
-
-    /**
      * Create image in server (upload)
      *
      * @return void
@@ -111,6 +101,24 @@ class Image
         $this->thumbnaill = $this->format($this->image, $this->thumbnaillProperties);
         
         return $this->upload($this->getFullPathThumbnail(), $this->getPayload($this->thumbnaill));
+    }
+
+    /**
+     * Remove image in server (upload)
+     *
+     * @return void
+     */
+    public function remove($imageName)
+    {
+        list ($this->name) = explode('.', $imageName);
+        
+        if (Storage::disk('s3')->has($this->getFullPath())) {
+            Storage::delete($this->getFullPath());
+        }
+        
+        if (Storage::disk('s3')->has($this->getFullPathThumbnail())) {
+            Storage::delete($this->getFullPathThumbnail());
+        }
     }
 
     /**
