@@ -1,4 +1,4 @@
-<h1>Pacote com diversão features para criação de projetos mais organizados em Laravel 5.x</h1>
+<h1>Pacote com diversas features para criação de projetos mais organizados em Laravel 5.x</h1>
 
 <p>*Documentação e Projeto em desenvolvimento NÃO USE EM PRODUÇÃO!*</p></br>
 

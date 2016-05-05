@@ -161,6 +161,27 @@ abstract class Entity extends Model
     }
 
     /**
+     * Transform Front to Model
+     *
+     * @return array
+     */
+    public function transformFromFront(array $array)
+    {
+        $transformation = $this->getTransformation();
+        $transformed = [];
+        
+        foreach ($transformation as $name => $new_name) {
+            if (! key_exists($new_name, $array)) {
+                continue;
+            }
+            
+            $transformed[$name] = $array[$new_name];
+        }
+        
+        return $transformed;
+    }
+
+    /**
      * Get the rules attributes for the model.
      *
      * @return array
@@ -217,7 +238,7 @@ abstract class Entity extends Model
         $hashids = App::make('Hashids');
         $hashId = $hashids->decode($idHashed);
         
-        return (count($hashId) > 0)? $hashId[0] : '';
+        return (count($hashId) > 0) ? $hashId[0] : '';
     }
 
     /**

@@ -6,6 +6,7 @@ use Lab123\Odin\Libs\Api;
 use Lab123\Odin\Libs\Search;
 use Lab123\Odin\Requests\FilterRequest;
 use Request;
+use App;
 
 abstract class Repository implements IRepository
 {
@@ -19,11 +20,6 @@ abstract class Repository implements IRepository
      * Builder of Model
      */
     protected $builder;
-
-    /**
-     * Builder of Model
-     */
-    protected $filtersRequest;
 
     /**
      * Return a resource by id
@@ -233,22 +229,19 @@ abstract class Repository implements IRepository
             return $default_rules;
         }
         
-        $default_rules2 = [];
-        $transformation = $this->model->getTransformation();
-        foreach ($transformation as $original => $transformed) {
-            $default_rules2[$transformed] = $default_rules[$original];
-        }
-        
-        $default_rules = $default_rules2;
-        
-        $rules = [];
         foreach ($fields as $field => $rule) {
             if (is_int($field)) {
                 $rules[$rule] = $default_rules[$rule];
                 continue;
             }
             
-            $rules[$field] = $default_rules[$field] . '|' . $rule;
+            $default_rules[$field] .= '|' . $rule;
+        }
+        
+        $rules = [];
+        $transformation = $this->model->getTransformation();
+        foreach ($transformation as $original => $transformed) {
+            $rules[$transformed] = $default_rules[$original];
         }
         
         return $rules;

@@ -78,17 +78,6 @@ trait ApiResponse
     }
 
     /**
-     * Return HTTP Internal Error (500)
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function internalError()
-    {
-        $args = func_get_args();
-        return $this->response($this->getData($args), Responses::HTTP_INTERNAL_SERVER_ERROR);
-    }
-
-    /**
      * Return HTTP Conflict (409)
      *
      * @return \Illuminate\Http\Response
@@ -97,6 +86,28 @@ trait ApiResponse
     {
         $args = func_get_args();
         return $this->response($this->getData($args), Responses::HTTP_CONFLICT);
+    }
+
+    /**
+     * Return HTTP Bad Request (422)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function unprocessable()
+    {
+        $args = func_get_args();
+        return $this->response($this->getData($args), Responses::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    /**
+     * Return HTTP Internal Error (500)
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function internalError()
+    {
+        $args = func_get_args();
+        return $this->response($this->getData($args), Responses::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**

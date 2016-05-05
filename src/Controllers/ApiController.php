@@ -107,9 +107,9 @@ class ApiController extends Controller
             return $this->notFound();
         }
         
-        $resource = $resource->update($request->all());
+        $resource->update($request->all());
         
-        $resources = $this->autoloadRelationships($resource);
+        $resource = $this->autoloadRelationships($resource);
         
         return $this->success($resource);
     }

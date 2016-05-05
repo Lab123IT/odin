@@ -51,13 +51,15 @@ class LumenServiceProvider extends ServiceProvider
     {
         app()->configure('odin');
         
-        if (! class_exists('App')) {
-            class_alias('Illuminate\Support\Facades\App', 'App');
-            class_alias('Illuminate\Support\Facades\Request', 'Request');
-            class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
-            
-            app()->withFacades();
-            app()->withEloquent();
-        }
+        class_alias('Illuminate\Support\Facades\App', 'App');
+        class_alias('Illuminate\Support\Facades\Request', 'Request');
+        class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
+        
+        app()->withFacades();
+        app()->withEloquent();
+        
+        app()->singleton('filesystem', function ($app) {
+            return $app->loadComponent('filesystems', 'Illuminate\Filesystem\FilesystemServiceProvider', 'filesystem');
+        });
     }
 }
