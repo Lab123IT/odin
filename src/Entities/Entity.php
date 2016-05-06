@@ -2,8 +2,8 @@
 namespace Lab123\Odin\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Lab123\Odin\Libs\Api;
 use Request;
-use App;
 
 abstract class Entity extends Model
 {
@@ -21,6 +21,20 @@ abstract class Entity extends Model
      * @var string
      */
     protected $resource = '';
+
+    /**
+     * The father resource.
+     *
+     * @var array
+     */
+    protected $father = '';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    public $children = [];
 
     /**
      * Create a new Eloquent model instance.
@@ -51,13 +65,53 @@ abstract class Entity extends Model
     }
 
     /**
-     * Return resource
+     * Return resource name
      *
      * @return array
      */
-    public function getResource()
+    public function getResourceName()
     {
-        return $this->resource;
+        return ($this->resource) ? $this->resource : $this->getTable();
+    }
+
+    /**
+     * Return father URI
+     *
+     * @return string
+     */
+    public function getFatherUri()
+    {
+        if ($this->father) {
+            
+            $func = $this->father;
+            $relat = $this->$func();
+            $field = $relat->getForeignKey();
+            
+            $fatherResourceName = $relat->getRelated()->getResourceName();
+            
+            return url() . '/' . $fatherResourceName . '/' . Api::encodeHashId($this->$field);
+        }
+        
+        return url();
+    }
+
+    /**
+     * Return father key name
+     *
+     * @return string
+     */
+    public function getFatherKeyName()
+    {
+        if ($this->father) {
+            
+            $func = $this->father;
+            $relat = $this->$func();
+            $field = $relat->getForeignKey();
+            
+            return $field;
+        }
+        
+        return '';
     }
 
     /**
@@ -67,7 +121,18 @@ abstract class Entity extends Model
      */
     public function getResourceURL()
     {
-        return url() . '/' . $this->getResource() . '/' . $this->getId();
+        return $this->getFatherUri() . '/' . $this->getResourceName() . '/' . $this->getId();
+    }
+
+    /**
+     * Return resource URL
+     *
+     * @return array
+     */
+    public function getResourceChildURL($child)
+    {
+        $entity = ($this->$child()->getModel());
+        return $this->getResourceURL() . '/' . $entity->getResourceName();
     }
 
     /**
@@ -77,10 +142,14 @@ abstract class Entity extends Model
      */
     public function getResourceData()
     {
-        return [
-            'type' => $this->getResource(),
-            'uri' => $this->getResourceURL()
-        ];
+        return $this->getResourceURL();
+        
+        /*
+         * return [
+         * 'type' => $this->getResourceName(),
+         * 'uri' => $this->getResourceURL()
+         * ];
+         */
     }
 
     /**
@@ -104,11 +173,11 @@ abstract class Entity extends Model
      */
     protected function getPublicIdAttribute()
     {
-        if ($id = $this->decodeHashId($this->attributes['id'])) {
+        if ($id = Api::decodeHashId($this->attributes['id'])) {
             return $id;
         }
         
-        return $this->encodeHashId($this->attributes['id']);
+        return Api::encodeHashId($this->attributes['id']);
     }
 
     /**
@@ -118,7 +187,7 @@ abstract class Entity extends Model
      */
     protected function setPublicIdAttribute($value)
     {
-        $this->attributes['public_id'] = $this->decodeHashId($this->attributes['id']);
+        $this->attributes['public_id'] = Api::decodeHashId($this->attributes['id']);
     }
 
     /**
@@ -168,8 +237,19 @@ abstract class Entity extends Model
     public function transformFromFront(array $array)
     {
         $transformation = $this->getTransformation();
+        $fillables = $this->getFillable();
         $transformed = [];
         
+        /* Add fillables to array transformed */
+        foreach ($fillables as $name) {
+            if (! key_exists($name, $array)) {
+                continue;
+            }
+            
+            $transformed[$name] = $array[$name];
+        }
+        
+        /* Add transform fields to array transformed */
         foreach ($transformation as $name => $new_name) {
             if (! key_exists($new_name, $array)) {
                 continue;
@@ -229,26 +309,13 @@ abstract class Entity extends Model
     }
 
     /**
-     * Return Id Decoded
+     * Create a new Eloquent Collection instance.
      *
-     * @return array
+     * @param array $models            
+     * @return \Illuminate\Database\Eloquent\Collection
      */
-    private function decodeHashId($idHashed)
+    public function newCollection(array $models = [])
     {
-        $hashids = App::make('Hashids');
-        $hashId = $hashids->decode($idHashed);
-        
-        return (count($hashId) > 0) ? $hashId[0] : '';
-    }
-
-    /**
-     * Return Id Encoded
-     *
-     * @return array
-     */
-    private function encodeHashId($id)
-    {
-        $hashids = App::make('Hashids');
-        return $hashids->encode($id, time());
+        return new \Lab123\Odin\Collection($models);
     }
 }

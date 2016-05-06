@@ -1,9 +1,10 @@
 <?php
 namespace Lab123\Odin\Controllers;
 
+use Lab123\Odin\Requests\FilterRequest;
 use Lab123\Odin\Traits\ApiResponse;
 use Lab123\Odin\Traits\ApiUser;
-use Lab123\Odin\Requests\FilterRequest;
+use Lab123\Odin\Libs\Api;
 use App;
 use DB;
 
@@ -26,12 +27,26 @@ class ApiController extends Controller
     protected $loads = [];
 
     /**
+     * Array autoload Entities Resources.
+     *
+     * @var $loads array
+     */
+    protected $smallLoads = [];
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(FilterRequest $filters)
+    public function index(FilterRequest $filters, $father_id = '')
     {
+        if ($father_id) {
+            $father_id = $this->getRealId($father_id);
+            $filters->criteria[] = "father_id,=,{$father_id}";
+        }
+        
+        $this->queryLog();
+        
         $resources = $this->repository->filter($filters)->paginate();
         
         if ($resources->count() < 1) {
@@ -39,6 +54,7 @@ class ApiController extends Controller
         }
         
         $resources = $this->autoloadRelationships($resources);
+        $resources = $this->autoloadSmallRelationships($resources);
         
         return $this->success($resources);
     }
@@ -48,8 +64,17 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id, FilterRequest $filters)
+    public function show($id, FilterRequest $filters, $father_id = '')
     {
+        if ($father_id) {
+            $father_id = $this->getRealId($father_id);
+            $filters->criteria[] = "father_id,=,{$father_id}";
+        }
+        
+        $id = $this->getRealId($id);
+        
+        $this->queryLog();
+        
         $resource = $this->repository->find($id);
         
         if (! $resource) {
@@ -66,11 +91,18 @@ class ApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(FilterRequest $request)
+    public function store(FilterRequest $request, $father_id = '')
     {
         $this->validateStore($request);
         
+        $this->queryLog();
+        
         $input = $request->all();
+        if ($father_id) {
+            $father_id = $this->getRealId($father_id);
+            $input['father_id'] = $father_id;
+        }
+        
         $resource = $this->repository->create($input);
         
         if (! $resource) {
@@ -101,13 +133,11 @@ class ApiController extends Controller
     {
         $this->validateUpdate($request);
         
-        $resource = $this->repository->find($id);
+        $this->queryLog();
         
-        if (! $resource) {
-            return $this->notFound();
-        }
+        $id = $this->getRealId($id);
         
-        $resource->update($request->all());
+        $resource = $this->repository->update($request->all(), $id);
         
         $resource = $this->autoloadRelationships($resource);
         
@@ -131,6 +161,10 @@ class ApiController extends Controller
      */
     public function destroy($id)
     {
+        $this->queryLog();
+        
+        $id = $this->getRealId($id);
+        
         $resource = $this->repository->find($id);
         
         if (! $resource) {
@@ -142,6 +176,11 @@ class ApiController extends Controller
         return $this->success($result);
     }
 
+    /**
+     * Auto load Relations.
+     *
+     * @return $resources
+     */
     private function autoloadRelationships($resources)
     {
         foreach ($this->loads as $load) {
@@ -149,5 +188,62 @@ class ApiController extends Controller
         }
         
         return $resources;
+    }
+
+    /**
+     * Auto load Relations.
+     *
+     * @return $resources
+     */
+    private function autoloadSmallRelationships($resources)
+    {
+        foreach ($this->smallLoads as $relationship) {
+            
+            $key = $resources[0]->$relationship()->getForeignKey();
+            
+            $fields = [
+                'id',
+                $key
+            ];
+            
+            $resources->load([
+                $relationship => function ($q) use($fields) {
+                    $q->select($fields);
+                }
+            ]);
+        }
+        
+        return $resources;
+    }
+
+    /**
+     * Active Query log When active config Odin
+     *
+     * @return void
+     */
+    private function queryLog()
+    {
+        if (! config('odin.queryRequest')) {
+            return;
+        }
+        
+        DB::enableQueryLog();
+    }
+
+    /**
+     * Return decoded Id or actual Id.
+     *
+     * @return $id
+     */
+    private function getRealId($id)
+    {
+        return Api::decodeHashId($id);
+    }
+    
+    private function getFatherField() {
+        
+        dd($this->father);
+        
+        return '';
     }
 }

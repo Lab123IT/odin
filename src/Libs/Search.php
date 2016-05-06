@@ -1,8 +1,9 @@
 <?php
 namespace Lab123\Odin\Libs;
 
-use Lab123\Odin\Entities\Entity;
 use Lab123\Odin\Requests\FilterRequest;
+use Lab123\Odin\Entities\Entity;
+use Lab123\Odin\Libs\Api;
 use DB;
 
 class Search
@@ -74,9 +75,12 @@ class Search
             
             list ($field, $operator, $value) = explode(',', $criteria);
             
-            if (!$fields = $this->getOnlyAvailableAttributes([$field])) {
-                continue;
-            }
+            /*
+             * if (! $fields = $this->getOnlyAvailableAttributes([])) {
+             * dd($fields);
+             * continue;
+             * }
+             */
             
             $this->builder = $this->builder->where($field, $operator, $value);
         }
@@ -135,9 +139,9 @@ class Search
     }
 
     /**
-     * Set limit to return in select
+     * Random data frm database
      *
-     * @return this
+     * @return raw
      */
     private function random()
     {
@@ -156,11 +160,16 @@ class Search
         return DB::raw($randomFunctions[$driver]);
     }
 
+    /**
+     * Return only fields of Entity
+     *
+     * @return array
+     */
     private function getOnlyAvailableAttributes(array $verify = [])
     {
         $fillable = array_flip($this->entity->getFillable());
         
-        //$this->entity->getTransformation()
+        // $this->entity->getTransformation()
         
         $availableAttributes = [];
         foreach ($verify as $k => $v) {

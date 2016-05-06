@@ -2,9 +2,10 @@
 namespace Lab123\Odin\Repositories;
 
 use Lab123\Odin\Contracts\IRepository;
-use Lab123\Odin\Libs\Api;
-use Lab123\Odin\Libs\Search;
 use Lab123\Odin\Requests\FilterRequest;
+use Lab123\Odin\Libs\Search;
+use Lab123\Odin\Libs\Api;
+use Lab123\Odin\Facades\ApiResponse;
 use Request;
 use App;
 
@@ -73,7 +74,15 @@ abstract class Repository implements IRepository
      */
     public function update(array $data, $id)
     {
-        return $this->model->find($id)->update($this->model->transformFromFront($data));
+        $resource = $this->model->find($id);
+        
+        if (! $resource) {
+            return ApiResponse::notFound();
+        }
+        
+        $resource->update($this->model->transformFromFront($data));
+        
+        return $resource;
     }
 
     /**
@@ -84,7 +93,13 @@ abstract class Repository implements IRepository
      */
     public function delete($id)
     {
-        return $this->model->find($id)->delete();
+        $resource = $this->model->find($id);
+        
+        if (! $resource) {
+            return ApiResponse::notFound();
+        }
+        
+        return $resource->delete();
     }
 
     /**
@@ -209,6 +224,8 @@ abstract class Repository implements IRepository
      */
     public function filter(FilterRequest $filters)
     {
+        $filters = $this->adjustFilters($filters);
+        
         $search = new Search($this->model, $filters);
         $this->builder = $search->getBuilder();
         
@@ -235,6 +252,10 @@ abstract class Repository implements IRepository
                 continue;
             }
             
+            if (! key_exists($field, $default_rules)) {
+                continue;
+            }
+            
             $default_rules[$field] .= '|' . $rule;
         }
         
@@ -244,6 +265,34 @@ abstract class Repository implements IRepository
             $rules[$transformed] = $default_rules[$original];
         }
         
+        foreach ($fields as $field => $rule) {
+            if (! key_exists($field, $rules)) {
+                continue;
+            }
+            
+            $rules[$field] .= '|' . $rule;
+        }
+        
         return $rules;
+    }
+
+    /**
+     * Adjust filters (criteria)
+     *
+     * @return $filters
+     */
+    private function adjustFilters($filters)
+    {
+        $fatherKey = $this->model->getFatherKeyName();
+        
+        foreach ($filters->criteria as &$critria) {
+            
+            /* Adiciona a chave certa para fltrar por pai */
+            if (strpos($critria, 'father_id') !== false) {
+                $critria = str_replace('father_id', $fatherKey, $critria);
+            }
+        }
+        
+        return $filters;
     }
 }

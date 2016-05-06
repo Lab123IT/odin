@@ -1,7 +1,7 @@
 <?php
 namespace Lab123\Odin\Libs;
 
-use Illuminate\Support\Facades\App;
+use App;
 
 class Api
 {
@@ -14,5 +14,37 @@ class Api
     public static function url()
     {
         return env('APP_URL', 'http://localhost');
+    }
+
+    /**
+     * Return Id Decoded
+     *
+     * @return array
+     */
+    public static function decodeHashId($idHashed)
+    {
+        if (! config('odin.hashid.active')) {
+            return $idHashed;
+        }
+        
+        $hashids = App::make('Hashids');
+        $hashId = $hashids->decode($idHashed);
+        
+        return (count($hashId) > 0) ? $hashId[0] : '';
+    }
+
+    /**
+     * Return Id Encoded
+     *
+     * @return array
+     */
+    public static function encodeHashId($id)
+    {
+        if (! config('odin.hashid.active')) {
+            return $id;
+        }
+        
+        $hashids = App::make('Hashids');
+        return $hashids->encode($id, date('d'));
     }
 }

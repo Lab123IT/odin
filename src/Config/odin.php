@@ -1,7 +1,8 @@
 <?php
 return [
+    'queryRequest' => false,
     'hashid' => [
-        'active' => true,
+        'active' => false,
         'length_key' => 8
     ]
 ];

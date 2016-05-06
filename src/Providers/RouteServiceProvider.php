@@ -4,6 +4,7 @@ namespace Lab123\Odin\Providers;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Lab123\Odin\Facades\ApiResponse;
 use Illuminate\Routing\Router;
+use Lab123\Odin\Libs\Api;
 use Hashids\Hashids;
 use App;
 
@@ -21,9 +22,7 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot($router);
         
         /* Ativa o Hash Id automático nas entidades */
-        if (config('odin.hashid.active')) {
-            $this->decodeId($router);
-        }
+        $this->decodeId($router);
     }
 
     /**
@@ -35,16 +34,7 @@ class RouteServiceProvider extends ServiceProvider
     public function decodeId(Router $router)
     {
         $router->bind('id', function ($id) {
-            
-            $hashids = App::make('Hashids');
-            
-            $id_decoded = $hashids->decode($id);
-            
-            if (count($id_decoded) < 1) {
-                return ApiResponse::notFound();
-            }
-            
-            return $id_decoded[0];
+            return Api::decodeHashId($id);
         });
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Log;
 use App;
+use DB;
 
 trait ApiResponse
 {
@@ -181,6 +182,10 @@ trait ApiResponse
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
             $data['data'] = $entity->toArray();
+        }
+        
+        if (config('odin.queryRequest')) {
+            $data['queries'] = DB::getQueryLog();
         }
         
         return $data;
