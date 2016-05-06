@@ -27,13 +27,6 @@ class ApiController extends Controller
     protected $loads = [];
 
     /**
-     * Array autoload Entities Resources.
-     *
-     * @var $loads array
-     */
-    protected $smallLoads = [];
-
-    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -44,7 +37,7 @@ class ApiController extends Controller
             $father_id = $this->getRealId($father_id);
             $filters->criteria[] = "father_id,=,{$father_id}";
         }
-        
+
         $this->queryLog();
         
         $resources = $this->repository->filter($filters)->paginate();
@@ -53,7 +46,6 @@ class ApiController extends Controller
             return $this->notFound();
         }
         
-        $resources = $this->autoloadRelationships($resources);
         $resources = $this->autoloadSmallRelationships($resources);
         
         return $this->success($resources);
@@ -197,14 +189,18 @@ class ApiController extends Controller
      */
     private function autoloadSmallRelationships($resources)
     {
-        foreach ($this->smallLoads as $relationship) {
+        foreach ($this->loads as $relationship) {
             
-            $key = $resources[0]->$relationship()->getForeignKey();
+            $fields = ['*'];
             
-            $fields = [
-                'id',
-                $key
-            ];
+            if (! $resources[0]->$relationship() instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+                $key = $resources[0]->$relationship()->getForeignKey();
+                
+                $fields = [
+                    'id',
+                    $key
+                ];
+            }
             
             $resources->load([
                 $relationship => function ($q) use($fields) {
@@ -239,9 +235,9 @@ class ApiController extends Controller
     {
         return Api::decodeHashId($id);
     }
-    
-    private function getFatherField() {
-        
+
+    private function getFatherField()
+    {
         dd($this->father);
         
         return '';

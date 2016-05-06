@@ -51,6 +51,7 @@ abstract class Repository implements IRepository
      */
     public function create(array $data)
     {
+        $data = $this->adjustArray($data);
         return $this->model->create($this->model->transformFromFront($data));
     }
 
@@ -80,6 +81,7 @@ abstract class Repository implements IRepository
             return ApiResponse::notFound();
         }
         
+        $data = $this->adjustArray($data);
         $resource->update($this->model->transformFromFront($data));
         
         return $resource;
@@ -294,5 +296,22 @@ abstract class Repository implements IRepository
         }
         
         return $filters;
+    }
+
+    /**
+     * Adjust array
+     *
+     * @return $array
+     */
+    private function adjustArray($data)
+    {
+        $fatherKey = $this->model->getFatherKeyName();
+        
+        if (key_exists('father_id', $data)) {
+            $data[$fatherKey] = $data['father_id'];
+            unset($data['father_id']);
+        }
+        
+        return $data;
     }
 }
