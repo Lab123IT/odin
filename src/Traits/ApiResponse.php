@@ -118,6 +118,9 @@ trait ApiResponse
      */
     public function response(array $data, $http_code)
     {
+        if (config('odin.queryRequest')) {
+            $data['queries'] = DB::getQueryLog();
+        }
         return response()->json($data, $http_code);
     }
 
@@ -182,10 +185,6 @@ trait ApiResponse
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
             $data['data'] = $entity->toArray();
-        }
-        
-        if (config('odin.queryRequest')) {
-            $data['queries'] = DB::getQueryLog();
         }
         
         return $data;

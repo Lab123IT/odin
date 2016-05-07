@@ -37,7 +37,7 @@ class ApiController extends Controller
             $father_id = $this->getRealId($father_id);
             $filters->criteria[] = "father_id,=,{$father_id}";
         }
-
+        
         $this->queryLog();
         
         $resources = $this->repository->filter($filters)->paginate();
@@ -173,7 +173,7 @@ class ApiController extends Controller
      *
      * @return $resources
      */
-    private function autoloadRelationships($resources)
+    protected function autoloadRelationships($resources)
     {
         foreach ($this->loads as $load) {
             $resources->load($load);
@@ -187,11 +187,13 @@ class ApiController extends Controller
      *
      * @return $resources
      */
-    private function autoloadSmallRelationships($resources)
+    protected function autoloadSmallRelationships($resources)
     {
         foreach ($this->loads as $relationship) {
             
-            $fields = ['*'];
+            $fields = [
+                '*'
+            ];
             
             if (! $resources[0]->$relationship() instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
                 $key = $resources[0]->$relationship()->getForeignKey();
@@ -217,7 +219,7 @@ class ApiController extends Controller
      *
      * @return void
      */
-    private function queryLog()
+    protected function queryLog()
     {
         if (! config('odin.queryRequest')) {
             return;
@@ -231,15 +233,8 @@ class ApiController extends Controller
      *
      * @return $id
      */
-    private function getRealId($id)
+    protected function getRealId($id)
     {
         return Api::decodeHashId($id);
-    }
-
-    private function getFatherField()
-    {
-        dd($this->father);
-        
-        return '';
     }
 }

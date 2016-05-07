@@ -22,18 +22,30 @@ class Collection extends IlluminateCollection
         
         $entity = $this->items[0];
         
-        if ($entity->children) {
+        foreach ($data as $k => $resource) {
+            if (key_exists('pivot', $resource)) {
+                unset($data[$k]['pivot']);
+            }
+        }
+        
+        return $data;
+        
+        foreach ($data as $k => $resource) {
+            if (! is_array($resource)) {
+                continue;
+            }
             
-            foreach ($entity->children as $child) {
-                if (key_exists($child, $data[0])) {
-                    
-                    $newData = $data[0][$child];
-                    unset($data[0][$child]);
-                    
-                    /* Carrega a URI do recurso filho */
-                    $data[0][$child]['uri'] = $entity->getResourceChildURL($child);
-                    $data[0][$child]['data'] = $newData;                 
+            foreach ($resource as $key => $value) {
+                if (! is_array($value)) {
+                    continue;
                 }
+                
+                $newData = $value;
+                unset($data[$k][$key]);
+                
+                /* Carrega a URI do recurso filho */
+                $data[$k][$key]['uri'] = $entity->getResourceChildURL($key);
+                $data[$k][$key]['data'] = $newData;
             }
         }
         

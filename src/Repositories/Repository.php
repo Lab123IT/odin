@@ -3,9 +3,9 @@ namespace Lab123\Odin\Repositories;
 
 use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Requests\FilterRequest;
+use Lab123\Odin\Facades\ApiResponse;
 use Lab123\Odin\Libs\Search;
 use Lab123\Odin\Libs\Api;
-use Lab123\Odin\Facades\ApiResponse;
 use Request;
 use App;
 

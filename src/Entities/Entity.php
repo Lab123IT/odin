@@ -87,7 +87,11 @@ abstract class Entity extends Model
             $relat = $this->$func();
             $fatherResourceName = $relat->getRelated()->getResourceName();
             
-            $field = $relat->getForeignKey();            
+            $field = $relat->getForeignKey();
+            
+            if (! $this->$field) {
+                return url();
+            }
             
             return url() . '/' . $fatherResourceName . '/' . Api::encodeHashId($this->$field);
         }
@@ -107,11 +111,13 @@ abstract class Entity extends Model
             $func = $this->father;
             $relat = $this->$func();
             
-            /*if (! $relat instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
-                $field = $relat->getForeignKey();
-            } else {
-                $field = 'id';
-            }*/
+            /*
+             * if (! $relat instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+             * $field = $relat->getForeignKey();
+             * } else {
+             * $field = 'id';
+             * }
+             */
             
             $field = $relat->getForeignKey();
             
