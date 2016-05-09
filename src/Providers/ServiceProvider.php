@@ -3,6 +3,7 @@ namespace Lab123\Odin\Providers;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Hashids\Hashids;
+use DB;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -17,6 +18,8 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishConfigs();
         
         $this->publishTranslate();
+        
+        $this->dbLog();
     }
 
     /**
@@ -88,5 +91,12 @@ class ServiceProvider extends BaseServiceProvider
     public function config_path($path)
     {
         return app()->basePath('config/') . $path;
+    }
+
+    private function dbLog()
+    {
+        if (config('odin.queryRequest')) {
+            DB::enableQueryLog();
+        }
     }
 }

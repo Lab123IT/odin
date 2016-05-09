@@ -23,6 +23,13 @@ abstract class Entity extends Model
     protected $resource = '';
 
     /**
+     * Class Fields Manage.
+     *
+     * @var $fieldManager
+     */
+    protected $fieldManager = '';
+
+    /**
      * The father resource.
      *
      * @var array
@@ -44,6 +51,11 @@ abstract class Entity extends Model
      */
     public function __construct(array $attributes = [])
     {
+        if ($this->fieldManager) {
+            $this->fieldManager = new $this->fieldManager();
+            $attributes = $this->fieldManager->transformToResource($attributes);
+        }
+        
         parent::__construct($attributes);
         
         /* Adiciona o Hash Id nas entidades */
@@ -81,9 +93,9 @@ abstract class Entity extends Model
      */
     public function getFatherUri()
     {
-        if ($this->father) {
+        if ($this->getFatherName()) {
             
-            $func = $this->father;
+            $func = $this->getFatherName();
             $relat = $this->$func();
             $fatherResourceName = $relat->getRelated()->getResourceName();
             
@@ -106,9 +118,9 @@ abstract class Entity extends Model
      */
     public function getFatherKeyName()
     {
-        if ($this->father) {
+        if ($this->getFatherName()) {
             
-            $func = $this->father;
+            $func = $this->getFatherName();
             $relat = $this->$func();
             
             /*
@@ -125,6 +137,11 @@ abstract class Entity extends Model
         }
         
         return 'id';
+    }
+
+    public function getFatherName()
+    {
+        return $this->father;
     }
 
     /**
@@ -212,68 +229,16 @@ abstract class Entity extends Model
     {
         $array = parent::attributesToArray();
         
-        return $this->transform($array);
-    }
-
-    /**
-     * Transform attributes model.
-     *
-     * @return array
-     */
-    public function transform(array $array)
-    {
-        $transformation = $this->getTransformation();
-        $transformed = [];
-        
-        if (key_exists('public_id', $array)) {
-            $transformed['id'] = $array['public_id'];
-        }
-        
-        foreach ($transformation as $name => $new_name) {
-            if (! key_exists($name, $array)) {
-                continue;
-            }
+        if ($this->fieldManager) {
             
-            $transformed[$new_name] = $array[$name];
+            $array = $this->fieldManager->transformToFrontName($array);
         }
         
-        $transformed = array(
+        $array = array(
             'uri' => $this->getResourceData()
-        ) + $transformed;
+        ) + $array;
         
-        return $transformed;
-    }
-
-    /**
-     * Transform Front to Model
-     *
-     * @return array
-     */
-    public function transformFromFront(array $array)
-    {
-        $transformation = $this->getTransformation();
-        $fillables = $this->getFillable();
-        $transformed = [];
-        
-        /* Add fillables to array transformed */
-        foreach ($fillables as $name) {
-            if (! key_exists($name, $array)) {
-                continue;
-            }
-            
-            $transformed[$name] = $array[$name];
-        }
-        
-        /* Add transform fields to array transformed */
-        foreach ($transformation as $name => $new_name) {
-            if (! key_exists($new_name, $array)) {
-                continue;
-            }
-            
-            $transformed[$name] = $array[$new_name];
-        }
-        
-        return $transformed;
+        return $array;
     }
 
     /**
@@ -283,44 +248,7 @@ abstract class Entity extends Model
      */
     public function getRules()
     {
-        $rules = [];
-        foreach ($this->fields as $field => $extra) {
-            
-            if (is_int($field)) {
-                continue;
-            }
-            $rule = (key_exists('rules', $extra)) ? $extra['rules'] : '';
-            
-            $rules[$field] = $rule;
-        }
-        
-        return $rules;
-    }
-
-    /**
-     * Get the transformation attributes for the model.
-     *
-     * @return array
-     */
-    public function getTransformation()
-    {
-        $transforms = [];
-        foreach ($this->fields as $field => $extra) {
-            if (is_int($field)) {
-                $transforms[$extra] = $extra;
-                continue;
-            }
-            
-            $transform = (key_exists('transform', $extra)) ? $extra['transform'] : $field;
-            
-            if ($transform === false) {
-                continue;
-            }
-            
-            $transforms[$field] = $transform;
-        }
-        
-        return $transforms;
+        return $this->fieldManager->rules();
     }
 
     /**

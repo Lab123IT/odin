@@ -3,7 +3,6 @@ namespace Lab123\Odin\Repositories;
 
 use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Requests\FilterRequest;
-use Lab123\Odin\Facades\ApiResponse;
 use Lab123\Odin\Libs\Search;
 use Lab123\Odin\Libs\Api;
 use Request;
@@ -52,7 +51,7 @@ abstract class Repository implements IRepository
     public function create(array $data)
     {
         $data = $this->adjustArray($data);
-        return $this->model->create($this->model->transformFromFront($data));
+        return $this->model->create($data);
     }
 
     /**
@@ -78,11 +77,11 @@ abstract class Repository implements IRepository
         $resource = $this->model->find($id);
         
         if (! $resource) {
-            return ApiResponse::notFound();
+            return '';
         }
         
         $data = $this->adjustArray($data);
-        $resource->update($this->model->transformFromFront($data));
+        $resource->update($data);
         
         return $resource;
     }
@@ -98,7 +97,7 @@ abstract class Repository implements IRepository
         $resource = $this->model->find($id);
         
         if (! $resource) {
-            return ApiResponse::notFound();
+            return '';
         }
         
         return $resource->delete();
@@ -279,6 +278,52 @@ abstract class Repository implements IRepository
     }
 
     /**
+     * Rules of Entity
+     *
+     * @param array $fields            
+     * @return array
+     */
+    public function getRulesFromChild($relation, array $fields = [])
+    {
+        $model = $this->model->$relation()->getRelated();
+        
+        $default_rules = $model->getRules();
+        
+        if (count($fields) < 1) {
+            return $default_rules;
+        }
+        
+        foreach ($fields as $field => $rule) {
+            if (is_int($field)) {
+                $rules[$rule] = $default_rules[$rule];
+                continue;
+            }
+            
+            if (! key_exists($field, $default_rules)) {
+                continue;
+            }
+            
+            $default_rules[$field] .= '|' . $rule;
+        }
+        
+        $rules = [];
+        $transformation = $model->getTransformation();
+        foreach ($transformation as $original => $transformed) {
+            $rules[$transformed] = $default_rules[$original];
+        }
+        
+        foreach ($fields as $field => $rule) {
+            if (! key_exists($field, $rules)) {
+                continue;
+            }
+            
+            $rules[$field] .= '|' . $rule;
+        }
+        
+        return $rules;
+    }
+
+    /**
      * Adjust filters (criteria)
      *
      * @return $filters
@@ -313,5 +358,132 @@ abstract class Repository implements IRepository
         }
         
         return $data;
+    }
+
+    /**
+     * Attach relation
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function attach($idFather, $idChild, $relation, $data = [])
+    {
+        $father = $this->find($idFather);
+        
+        $father->$relation()->attach($idChild, $data);
+        
+        return true;
+    }
+
+    /**
+     * Detach relation
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function detach($idFather, $idChild, $relation)
+    {
+        $father = $this->find($idFather);
+        
+        $father->$relation()->detach($idChild);
+        
+        return true;
+    }
+
+    /**
+     * Return all childs from relation
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function getChilds($id, $relation)
+    {
+        $father = $this->model->find($id);
+        
+        if (! $father) {
+            return null;
+        }
+        
+        $resource = $father->$relation;
+        
+        return $resource;
+    }
+
+    /**
+     * Return one child by id
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function getChild($id, $relation, $child_id)
+    {
+        $father = $this->model->find($id);
+        
+        if (! $father) {
+            return null;
+        }
+        
+        $resource = $father->$relation()->find($child_id);
+        
+        return $resource;
+    }
+
+    /**
+     * Create child One-to-One
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function addChilds($id, $relation, array $data)
+    {
+        $father = $this->model->find($id);
+        
+        if (! $father) {
+            return null;
+        }
+        
+        $resource = $father->$relation()->create($data);
+        
+        return $resource;
+    }
+
+    /**
+     * Update Child
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function updateChild($id, $relation, $child_id, array $data)
+    {
+        $father = $this->model->find($id);
+        
+        if (! $father) {
+            return null;
+        }
+        
+        $resource = $father->$relation()->find($child_id);
+        
+        if (! $resource) {
+            return null;
+        }
+        $resource->update($data);
+        
+        return $resource;
+    }
+
+    /**
+     * Delete Child
+     *
+     * @return boolean;
+     */
+    public function deleteChild($id, $relation, $child_id)
+    {
+        $father = $this->model->find($id);
+        
+        if (! $father) {
+            return null;
+        }
+        
+        $resource = $father->$relation()->find($child_id);
+        
+        if (! $resource) {
+            return null;
+        }
+        
+        return $resource->delete();
     }
 }

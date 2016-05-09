@@ -75,12 +75,9 @@ class Search
             
             list ($field, $operator, $value) = explode(',', $criteria);
             
-            /*
-             * if (! $fields = $this->getOnlyAvailableAttributes([])) {
-             * dd($fields);
-             * continue;
-             * }
-             */
+            if (! $this->isAvailableAttribute($field)) {
+                continue;
+            }
             
             $this->builder = $this->builder->where($field, $operator, $value);
         }
@@ -179,5 +176,21 @@ class Search
         }
         
         return $availableAttributes;
+    }
+
+    /**
+     * Return only fields of Entity
+     *
+     * @return array
+     */
+    private function isAvailableAttribute($field)
+    {
+        $fillable = array_flip($this->entity->getFillable());
+        
+        if (key_exists($field, $fillable)) {
+            return true;
+        }
+        
+        return false;
     }
 }
