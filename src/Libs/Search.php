@@ -15,9 +15,14 @@ class Search
 
     protected $filters;
 
-    public function __construct(Entity $entity, FilterRequest $filters)
+    public function __construct(Entity $entity, FilterRequest $filters, $builder = null)
     {
         $this->builder = $this->entity = $entity;
+        
+        if ($builder) {
+            $this->builder = $builder;
+        }
+        
         $this->filters = $filters;
         
         $this->setFilters();
@@ -71,16 +76,30 @@ class Search
      */
     public function criteria()
     {
+        $inArray = [];
         foreach ($this->filters->criteria as $criteria) {
             
             list ($field, $operator, $value) = explode(',', $criteria);
             
-            if (! $this->isAvailableAttribute($field)) {
+            /* Verifica se o campo enviado é filtrável */
+            /*if (! $this->isAvailableAttribute($field)) {
+                continue;
+            }*/
+            
+            if(strtoupper($operator) === 'IN') {
+                $inArray[$field][] = $value;
                 continue;
             }
             
             $this->builder = $this->builder->where($field, $operator, $value);
         }
+        
+        /* Efetua o IN do criteria */
+        if (count($inArray)) {
+            foreach ($inArray as $field => $data) {
+                $this->builder = $this->builder->whereIn($field, $data);
+            }            
+        }       
         
         return $this;
     }
@@ -187,7 +206,7 @@ class Search
     {
         $fillable = array_flip($this->entity->getFillable());
         
-        if (key_exists($field, $fillable)) {
+        if (key_exists($field, $fillable) || $field === 'id') {
             return true;
         }
         

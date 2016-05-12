@@ -18,7 +18,7 @@ trait ApiActionsChilds
     {
         $id = $this->getRealId($id);
         
-        $resource = $this->repository->getChilds($id, $relation);
+        $resource = $this->repository->getChilds($id, $relation, $filters);
         
         if (! $resource || count($resource) < 1) {
             return $this->notFound();

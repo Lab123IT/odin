@@ -424,12 +424,21 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function getChilds($id, $relation)
+    public function getChilds($id, $relation, $filters = null)
     {
         $parent = $this->model->find($id);
         
         if (! $parent) {
             return null;
+        }
+        
+        if ($filters) {
+            $child = $parent->$relation()->getRelated();
+            
+            $search = new Search($child, $filters, $parent->$relation());
+            $this->builder = $search->getBuilder();
+            
+            return $this->builder->get();
         }
         
         $resource = $parent->$relation;
