@@ -16,6 +16,8 @@ trait ApiActionsChilds
      */
     public function childIndex(FilterRequest $filters, $id, $relation)
     {
+        $id = $this->getRealId($id);
+        
         $resource = $this->repository->getChilds($id, $relation);
         
         if (! $resource || count($resource) < 1) {
@@ -30,9 +32,12 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function childShow(FilterRequest $filters, $id, $child_id, $relation)
+    public function childShow(FilterRequest $filters, $id, $idChild, $relation)
     {
-        $resource = $this->repository->getChild($id, $relation, $child_id);
+        $id = $this->getRealId($id);
+        $idChild = $this->getRealId($idChild);
+        
+        $resource = $this->repository->getChild($id, $relation, $idChild);
         
         if (! $resource) {
             return $this->notFound();
@@ -46,9 +51,29 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function childStore($idFather, FilterRequest $filters, $relation)
+    public function childStore($idParent, FilterRequest $filters, $relation)
     {
-        $resource = $this->repository->addChilds($idFather, $relation, $filters->all());
+        $idParent = $this->getRealId($idParent);
+        
+        $resource = $this->repository->storeChild($idParent, $relation, $filters->all());
+        
+        if (! $resource) {
+            return $this->notFound();
+        }
+        
+        return $this->success($resource);
+    }
+
+    /**
+     * Create and associate a new child
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function childStoreWithPivot($idParent, $request, $relation)
+    {
+        $idParent = $this->getRealId($idParent);
+        
+        $resource = $this->repository->storeChildAndPivot($idParent, $relation, $request->all());
         
         if (! $resource) {
             return $this->notFound();
@@ -62,9 +87,12 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function childAssociate($request, $idFather, $idChild, $relation)
+    public function childAssociate($request, $idParent, $idChild, $relation)
     {
-        if (! $this->repository->attach($idFather, $idChild, $relation, $request->all())) {
+        $idParent = $this->getRealId($idParent);
+        $idChild = $this->getRealId($idChild);
+        
+        if (! $this->repository->attach($idParent, $idChild, $relation, $request->all())) {
             return $this->notFound();
         }
         
@@ -76,9 +104,12 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function childDissociate($request, $idFather, $idChild, $relation)
+    public function childDissociate($request, $idParent, $idChild, $relation)
     {
-        if (! $this->repository->detach($idFather, $idChild, $relation)) {
+        $idParent = $this->getRealId($idParent);
+        $idChild = $this->getRealId($idChild);
+        
+        if (! $this->repository->detach($idParent, $idChild, $relation)) {
             return $this->notFound();
         }
         
@@ -90,9 +121,12 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function updateChild($idFather, FilterRequest $filters, $child_id, $relation)
+    public function updateChild($idParent, FilterRequest $filters, $idChild, $relation)
     {
-        $resource = $this->repository->updateChild($idFather, $relation, $child_id, $filters->all());
+        $idParent = $this->getRealId($idParent);
+        $idChild = $this->getRealId($idChild);
+        
+        $resource = $this->repository->updateChild($idParent, $relation, $idChild, $filters->all());
         
         if (! $resource) {
             return $this->notFound();
@@ -106,9 +140,12 @@ trait ApiActionsChilds
      *
      * @return \Illuminate\Http\Response
      */
-    public function deleteChild($idFather, FilterRequest $filters, $child_id, $relation)
+    public function deleteChild($idParent, FilterRequest $filters, $idChild, $relation)
     {
-        $resource = $this->repository->deleteChild($idFather, $relation, $child_id);
+        $idParent = $this->getRealId($idParent);
+        $idChild = $this->getRealId($idChild);
+        
+        $resource = $this->repository->deleteChild($idParent, $relation, $idChild);
         
         if ($resource == null) {
             return $this->notFound();

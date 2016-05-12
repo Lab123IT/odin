@@ -100,10 +100,6 @@ trait ApiActions
             return $this->notFound();
         }
         
-        if (! $resource) {
-            return $this->notFound();
-        }
-        
         $result = $resource->delete();
         
         return $this->success($result);

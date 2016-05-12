@@ -2,18 +2,12 @@
 namespace Lab123\Odin\Entities;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Route;
 use Lab123\Odin\Libs\Api;
 use Request;
 
 abstract class Entity extends Model
 {
-
-    /**
-     * The params attributes.
-     *
-     * @var array
-     */
-    protected $fields = [];
 
     /**
      * The resource name from model.
@@ -23,25 +17,46 @@ abstract class Entity extends Model
     protected $resource = '';
 
     /**
+     * Load model from relation.
+     *
+     * @var array
+     */
+    public $load = [];
+
+    /**
+     * Load only URI.
+     *
+     * @var array
+     */
+    public $loadUri = [];
+
+    /**
+     * Return entities loads to response API.
+     *
+     * @var boolean
+     */
+    static $loaded = false;
+
+    /**
      * Class Fields Manage.
      *
-     * @var $fieldManager
+     * @var Lab123\Odin\FieldManager
      */
     protected $fieldManager = '';
 
     /**
-     * The father resource.
+     * The parent resource.
      *
-     * @var array
+     * @var string
      */
-    protected $father = '';
+    protected $parent = '';
 
     /**
-     * The attributes that are mass assignable.
+     * The actions from resource.
      *
      * @var array
      */
-    public $children = [];
+    public $actions = [];
 
     /**
      * Create a new Eloquent model instance.
@@ -51,17 +66,30 @@ abstract class Entity extends Model
      */
     public function __construct(array $attributes = [])
     {
-        if ($this->fieldManager) {
-            $this->fieldManager = new $this->fieldManager();
-            $attributes = $this->fieldManager->transformToResource($attributes);
-        }
-        
         parent::__construct($attributes);
         
         /* Adiciona o Hash Id nas entidades */
         if (config('odin.hashid.active')) {
             self::addPublicId();
         }
+    }
+
+    /**
+     * Fill the model with an array of attributes.
+     *
+     * @param array $attributes            
+     * @return $this
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill(array $attributes)
+    {
+        if ($this->fieldManager) {
+            $this->fieldManager = new $this->fieldManager();
+            $attributes = $this->fieldManager->transformToResource($attributes);
+        }
+        
+        return parent::fill($attributes);
     }
 
     /**
@@ -87,40 +115,40 @@ abstract class Entity extends Model
     }
 
     /**
-     * Return father URI
+     * Return parent URI
      *
      * @return string
      */
-    public function getFatherUri()
+    public function getParentUri()
     {
-        if ($this->getFatherName()) {
+        if ($this->getParentName()) {
             
-            $func = $this->getFatherName();
+            $func = $this->getParentName();
             $relat = $this->$func();
-            $fatherResourceName = $relat->getRelated()->getResourceName();
+            $parentResourceName = $relat->getRelated()->getResourceName();
             
             $field = $relat->getForeignKey();
             
-            if (! $this->$field) {
+            if (! $this->$field/* || ! Request::is($parentResourceName . '/*')*/) {
                 return url();
             }
             
-            return url() . '/' . $fatherResourceName . '/' . Api::encodeHashId($this->$field);
+            return url() . '/' . $parentResourceName . '/' . Api::encodeHashId($this->$field);
         }
         
         return url();
     }
 
     /**
-     * Return father key name
+     * Return parent key name
      *
      * @return string
      */
-    public function getFatherKeyName()
+    public function getParentKeyName()
     {
-        if ($this->getFatherName()) {
+        if ($this->getParentName()) {
             
-            $func = $this->getFatherName();
+            $func = $this->getParentName();
             $relat = $this->$func();
             
             /*
@@ -139,9 +167,9 @@ abstract class Entity extends Model
         return 'id';
     }
 
-    public function getFatherName()
+    public function getParentName()
     {
-        return $this->father;
+        return $this->parent;
     }
 
     /**
@@ -151,18 +179,7 @@ abstract class Entity extends Model
      */
     public function getResourceURL()
     {
-        return $this->getFatherUri() . '/' . $this->getResourceName() . '/' . $this->getId();
-    }
-
-    /**
-     * Return resource URL
-     *
-     * @return array
-     */
-    public function getResourceChildURL($child)
-    {
-        $entity = ($this->$child()->getModel());
-        return $this->getResourceURL() . '/' . $entity->getResourceName();
+        return $this->getParentUri() . '/' . $this->getResourceName() . '/' . $this->getId();
     }
 
     /**
@@ -180,6 +197,25 @@ abstract class Entity extends Model
          * 'uri' => $this->getResourceURL()
          * ];
          */
+    }
+
+    /**
+     * Create link attribute to client
+     *
+     * @return array
+     */
+    public function getActions()
+    {
+        $actions = [];
+        
+        if (is_array($this->actions)) {
+            
+            foreach ($this->actions as $action) {
+                $actions[$action] = $action;
+            }
+        }
+        
+        return $actions;
     }
 
     /**
@@ -239,6 +275,36 @@ abstract class Entity extends Model
         ) + $array;
         
         return $array;
+    }
+
+    /**
+     * Convert the model's attributes to an array.
+     *
+     * @return array
+     */
+    public function autoload()
+    {
+        if (self::$loaded) {
+            return;
+        }
+        
+        if (is_array($this->load)) {
+            foreach ($this->load as $k => $load) {
+                $this->load($load);
+            }
+        }
+        
+        if (is_array($this->loadUri)) {
+            foreach ($this->loadUri as $k => $load) {
+                $this->load([
+                    $load => function ($query) {
+                        $query->select('id', $query->getForeignKey());
+                    }
+                ]);
+            }
+        }
+        
+        self::$loaded = true;
     }
 
     /**

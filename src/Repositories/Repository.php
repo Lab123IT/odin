@@ -50,7 +50,6 @@ abstract class Repository implements IRepository
      */
     public function create(array $data)
     {
-        $data = $this->adjustArray($data);
         return $this->model->create($data);
     }
 
@@ -80,7 +79,6 @@ abstract class Repository implements IRepository
             return '';
         }
         
-        $data = $this->adjustArray($data);
         $resource->update($data);
         
         return $resource;
@@ -225,8 +223,6 @@ abstract class Repository implements IRepository
      */
     public function filter(FilterRequest $filters)
     {
-        $filters = $this->adjustFilters($filters);
-        
         $search = new Search($this->model, $filters);
         $this->builder = $search->getBuilder();
         
@@ -324,40 +320,54 @@ abstract class Repository implements IRepository
     }
 
     /**
-     * Adjust filters (criteria)
+     * Get only fields fillable from Pivot Relation
      *
-     * @return $filters
+     * @return array
      */
-    private function adjustFilters($filters)
+    public function onlyFillablePivot($pivotRelation, $data)
     {
-        $fatherKey = $this->model->getFatherKeyName();
+        $fillable = $this->getPivotFields($pivotRelation, 'pivotColumns');
         
-        foreach ($filters->criteria as &$critria) {
-            
-            /* Adiciona a chave certa para fltrar por pai */
-            if (strpos($critria, 'father_id') !== false) {
-                $critria = str_replace('father_id', $fatherKey, $critria);
-            }
-        }
-        
-        return $filters;
+        return array_only($data, $fillable);
     }
 
     /**
-     * Adjust array
+     * Get array fields fillable from Pivot Relation
      *
-     * @return $array
+     * @return array
      */
-    private function adjustArray($data)
+    public function getPivotFields($obj, $prop)
     {
-        $fatherKey = $this->model->getFatherKeyName();
+        $reflection = new \ReflectionClass($obj);
+        $property = $reflection->getProperty($prop);
+        $property->setAccessible(true);
+        $value = $property->getValue($obj);
+        $property->setAccessible(false);
         
-        if (key_exists('father_id', $data)) {
-            $data[$fatherKey] = $data['father_id'];
-            unset($data['father_id']);
+        /* Remove timestamp from pivot */
+        return array_diff($value, [
+            'deleted_at',
+            'created_at',
+            'updated_at'
+        ]);
+    }
+
+    /**
+     * Create child One-to-One OR Many-to-Many without Pivot data
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function storeChild($id, $relation, array $data)
+    {
+        $parent = $this->model->find($id);
+        
+        if (! $parent) {
+            return null;
         }
         
-        return $data;
+        $resource = $parent->$relation()->create($data);
+        
+        return $resource;
     }
 
     /**
@@ -365,11 +375,32 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function attach($idFather, $idChild, $relation, $data = [])
+    public function storeChildAndPivot($idParent, $relation, $data = [])
     {
-        $father = $this->find($idFather);
+        $parent = $this->find($idParent);
+        $childEntity = $parent->$relation()->getRelated();
         
-        $father->$relation()->attach($idChild, $data);
+        $child = $childEntity->create($data);
+        
+        $data = $this->onlyFillablePivot($parent->$relation(), $data);
+        
+        $parent->$relation()->attach($child->id, $data);
+        
+        return $child;
+    }
+
+    /**
+     * Attach relation
+     *
+     * @return \Illuminate\Database\Eloquent\Model;
+     */
+    public function attach($idParent, $idChild, $relation, $data = [])
+    {
+        $parent = $this->find($idParent);
+        
+        $data = $this->onlyFillablePivot($parent->$relation(), $data);
+        
+        $parent->$relation()->attach($idChild, $data);
         
         return true;
     }
@@ -379,11 +410,11 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function detach($idFather, $idChild, $relation)
+    public function detach($idParent, $idChild, $relation)
     {
-        $father = $this->find($idFather);
+        $parent = $this->find($idParent);
         
-        $father->$relation()->detach($idChild);
+        $parent->$relation()->detach($idChild);
         
         return true;
     }
@@ -395,13 +426,13 @@ abstract class Repository implements IRepository
      */
     public function getChilds($id, $relation)
     {
-        $father = $this->model->find($id);
+        $parent = $this->model->find($id);
         
-        if (! $father) {
+        if (! $parent) {
             return null;
         }
         
-        $resource = $father->$relation;
+        $resource = $parent->$relation;
         
         return $resource;
     }
@@ -411,33 +442,15 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function getChild($id, $relation, $child_id)
+    public function getChild($id, $relation, $idChild)
     {
-        $father = $this->model->find($id);
+        $parent = $this->model->find($id);
         
-        if (! $father) {
+        if (! $parent) {
             return null;
         }
         
-        $resource = $father->$relation()->find($child_id);
-        
-        return $resource;
-    }
-
-    /**
-     * Create child One-to-One
-     *
-     * @return \Illuminate\Database\Eloquent\Model;
-     */
-    public function addChilds($id, $relation, array $data)
-    {
-        $father = $this->model->find($id);
-        
-        if (! $father) {
-            return null;
-        }
-        
-        $resource = $father->$relation()->create($data);
+        $resource = $parent->$relation()->find($idChild);
         
         return $resource;
     }
@@ -447,15 +460,15 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function updateChild($id, $relation, $child_id, array $data)
+    public function updateChild($id, $relation, $idChild, array $data)
     {
-        $father = $this->model->find($id);
+        $parent = $this->model->find($id);
         
-        if (! $father) {
+        if (! $parent) {
             return null;
         }
         
-        $resource = $father->$relation()->find($child_id);
+        $resource = $parent->$relation()->find($idChild);
         
         if (! $resource) {
             return null;
@@ -470,15 +483,15 @@ abstract class Repository implements IRepository
      *
      * @return boolean;
      */
-    public function deleteChild($id, $relation, $child_id)
+    public function deleteChild($id, $relation, $idChild)
     {
-        $father = $this->model->find($id);
+        $parent = $this->model->find($id);
         
-        if (! $father) {
+        if (! $parent) {
             return null;
         }
         
-        $resource = $father->$relation()->find($child_id);
+        $resource = $parent->$relation()->find($idChild);
         
         if (! $resource) {
             return null;

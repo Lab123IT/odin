@@ -184,6 +184,7 @@ trait ApiResponse
         /* Enviou uma Entidade como parâmetro */
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
+            $entity->autoload();
             $data['data'] = $entity->toArray();
         }
         
