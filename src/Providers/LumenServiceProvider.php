@@ -16,6 +16,20 @@ class LumenServiceProvider extends ServiceProvider
         parent::boot();
         
         $this->publishHelper();
+        
+        $this->publishConfigFilesystem();
+    }
+
+    /**
+     * Publish helpers for Lumen.
+     *
+     * @return void
+     */
+    public function publishConfigFilesystem()
+    {
+        $this->publishes([
+            __DIR__ . '/../Config/filesystems.php' => $this->config_path('filesystems.php')
+        ]);
     }
 
     /**
