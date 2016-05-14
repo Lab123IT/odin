@@ -84,7 +84,7 @@ class Image
     {
         $this->fill(compact('file', 'name'));
         
-        if ($this->upload($this->getFullPath(), $this->getPayload($this->image))) {
+        if ($this->upload($this->getDirBeforeAlbum(), $this->getPayload($this->image))) {
             return $this->getFullName();
         }
         
@@ -112,8 +112,8 @@ class Image
     {
         list ($this->name) = explode('.', $imageName);
         
-        if (Storage::disk('s3')->has($this->getFullPath())) {
-            Storage::delete($this->getFullPath());
+        if (Storage::disk('s3')->has($this->getDirBeforeAlbum())) {
+            Storage::delete($this->getDirBeforeAlbum());
         }
         
         if (Storage::disk('s3')->has($this->getFullPathThumbnail())) {
@@ -172,13 +172,25 @@ class Image
     }
 
     /**
+     * Get directory before album directory
+     *
+     * @return string
+     */
+    public function getDirBeforeAlbum()
+    {
+        return $this->getPath() . $this->getFullName();
+    }
+    
+    /**
      * Get full path file
      *
      * @return string
      */
-    public function getFullPath()
+    public function getFullPath($file = '')
     {
-        return $this->getPath() . $this->getFullName();
+        $this->name = ($file) ? $file : $this->name;
+    
+        return config('odin.assetsUrl') . $this->getPath() . $this->name;
     }
 
     /**
