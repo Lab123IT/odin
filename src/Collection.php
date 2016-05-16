@@ -71,7 +71,8 @@ class Collection extends IlluminateCollection
                 $rootUriResource = implode('/', $uriExploded);
             }
             unset($data[$k]);
-            $data['data'][$k] = array_last($value);
+            $data[$k] = array_last($value);
+            //$data['data'][$k] = array_last($value);
         }
         
         $data = [

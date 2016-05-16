@@ -185,7 +185,8 @@ trait ApiResponse
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
             $entity->autoload();
-            $data['data'] = $entity->toArray();
+            //$data['data'] = $entity->toArray();
+            $data = $entity->toArray();
         }
         
         return $data;
