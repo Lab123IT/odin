@@ -33,11 +33,6 @@ abstract class FieldManager
         return $this->transformToFrontName($rules);
     }
 
-    /**
-     * All rules configured.
-     *
-     * @return array
-     */
     private function getRules()
     {
         $rules = [];
@@ -53,7 +48,7 @@ abstract class FieldManager
     }
 
     /**
-     * Transform attributes to model.
+     * Transform attributes model.
      *
      * @return array
      */
@@ -82,7 +77,7 @@ abstract class FieldManager
     }
 
     /**
-     * Transform attributes to name transform.
+     * Transform attributes model.
      *
      * @return array
      */
@@ -106,11 +101,6 @@ abstract class FieldManager
         return $transformed;
     }
 
-    /**
-     * Transform names model.
-     *
-     * @return array
-     */
     private function getTransformation()
     {
         $transforms = [];
@@ -130,25 +120,5 @@ abstract class FieldManager
         }
         
         return $transforms;
-    }
-
-    /**
-     * Rules to store resource
-     *
-     * @return array
-     */
-    public function store()
-    {
-        return $this->rules();
-    }
-
-    /**
-     * Rules to update resource
-     *
-     * @return array
-     */
-    public function update()
-    {
-        return $this->store();
     }
 }

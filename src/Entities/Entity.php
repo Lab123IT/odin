@@ -84,9 +84,8 @@ abstract class Entity extends Model
      */
     public function fill(array $attributes)
     {
-        if ($this->fieldManager) {
-            $this->fieldManager = new $this->fieldManager();
-            $attributes = $this->fieldManager->transformToResource($attributes);
+        if ($this->getFieldManager()) {
+            $attributes = $this->getFieldManager()->transformToResource($attributes);
         }
         
         return parent::fill($attributes);
@@ -265,9 +264,8 @@ abstract class Entity extends Model
     {
         $array = parent::attributesToArray();
         
-        if ($this->fieldManager) {
-            
-            $array = $this->fieldManager->transformToFrontName($array);
+        if ($this->getFieldManager()) {
+            $array = $this->getFieldManager()->transformToFrontName($array);
         }
         
         $array = array(
@@ -314,7 +312,7 @@ abstract class Entity extends Model
      */
     public function getRules()
     {
-        return $this->fieldManager->rules();
+        return $this->getFieldManager()->rules();
     }
 
     /**
@@ -326,5 +324,35 @@ abstract class Entity extends Model
     public function newCollection(array $models = [])
     {
         return new \Lab123\Odin\Collection($models);
+    }
+
+    /**
+     * Return instance Field Manager of controller
+     *
+     * @return object Lab123\Odin\FieldManager
+     */
+    private function getFieldManager()
+    {
+        /* Verifica se existe Field Manager com prefixo igual a controller */
+        if (! $this->fieldManager) {
+            $pathClassExploded = explode('\\', get_class($this));
+            $namespace = array_first($pathClassExploded);
+            $resourceName = array_last($pathClassExploded);
+            
+            /* Verifica se existe o Field Manager para o recurso */
+            if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
+                dd("Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers");
+            }
+            
+            $this->fieldManager = $namespace . "\\FieldManagers\\{$resourceName}FieldManager";
+        }
+        
+        /* Ainda precisa instanciar o objeto */
+        if (is_string($this->fieldManager)) {
+            return new $this->fieldManager();
+        }
+        
+        /* Objeto já instanciado, só retornar */
+        return $this->fieldManager;
     }
 }

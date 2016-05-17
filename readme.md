@@ -35,9 +35,14 @@ Registrar o service provider (bootstrap/app):
 Registrar em Console\Kernel.php
 
 	protected $commands = [
-    	\Lab123\Odin\Command\LumenVendorPublish::class
+    	\Lab123\Odin\Command\LumenVendorPublish::class,
+    	\Lab123\Odin\Command\LumenAppNameCommand::class
 	]
 
+Rodar comando 
+	
+	php artisan app:name 'NomeDoSeuProjeto'
+	
 Rodar comando 
 	
 	php artisan vendor:publish

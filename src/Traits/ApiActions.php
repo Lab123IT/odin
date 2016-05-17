@@ -10,6 +10,13 @@ trait ApiActions
 {
 
     /**
+     * Class Fields Manage.
+     *
+     * @var $fieldManager
+     */
+    protected $fieldManager = '';
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -50,7 +57,7 @@ trait ApiActions
      */
     public function store(FilterRequest $request)
     {
-        $this->fieldManager = new $this->fieldManager();
+        $this->fieldManager = $this->getFieldManager();
         $this->validate($request->request, $this->fieldManager->store());
         
         $input = $request->all();
@@ -71,7 +78,7 @@ trait ApiActions
      */
     public function update(FilterRequest $request, $id)
     {
-        $this->fieldManager = new $this->fieldManager();
+        $this->fieldManager = $this->getFieldManager();
         $this->validate($request->request, $this->fieldManager->update());
         
         $id = $this->getRealId($id);
@@ -103,5 +110,36 @@ trait ApiActions
         $result = $resource->delete();
         
         return $this->success($result);
+    }
+
+    /**
+     * Return instance Field Manager of controller
+     *
+     * @return object Lab123\Odin\FieldManager
+     */
+    private function getFieldManager()
+    {
+        /* Verifica se existe Field Manager com prefixo igual a controller */
+        if (! $this->fieldManager) {
+            $pathClassExploded = explode('\\', get_class($this));
+            $namespace = array_first($pathClassExploded);
+            $nameController = array_last($pathClassExploded);
+            $resourceName = str_replace('Controller', '', $nameController);
+            
+            /* Verifica se existe o Field Manager para o recurso */
+            if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
+                dd("Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers");
+            }
+            
+            $this->fieldManager = $namespace . "\\FieldManagers\\{$resourceName}FieldManager";
+        }
+        
+        /* Ainda precisa instanciar o objeto */
+        if (is_string($this->fieldManager)) {
+            return new $this->fieldManager();
+        }
+        
+        /* Objeto já instanciado, só retornar */
+        return $this->fieldManager;
     }
 }

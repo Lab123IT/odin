@@ -22,13 +22,6 @@ class ApiController extends Controller
     protected $repository;
 
     /**
-     * Class Fields Manage.
-     *
-     * @var $fieldManager
-     */
-    protected $fieldManager = '';
-
-    /**
      * Return decoded Id or actual Id.
      *
      * @return $id
