@@ -341,7 +341,8 @@ abstract class Entity extends Model
             
             /* Verifica se existe o Field Manager para o recurso */
             if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
-                dd("Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers");
+                echo "Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers";
+                exit();
             }
             
             $this->fieldManager = $namespace . "\\FieldManagers\\{$resourceName}FieldManager";
