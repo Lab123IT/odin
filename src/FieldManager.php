@@ -33,6 +33,11 @@ abstract class FieldManager
         return $this->transformToFrontName($rules);
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
     private function getRules()
     {
         $rules = [];
@@ -101,6 +106,11 @@ abstract class FieldManager
         return $transformed;
     }
 
+    /**
+     * Get the transformation data
+     *
+     * @return array
+     */
     private function getTransformation()
     {
         $transforms = [];
@@ -120,5 +130,56 @@ abstract class FieldManager
         }
         
         return $transforms;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function getAutocomplete()
+    {
+        $autocomplete = [];
+        foreach ($this->fields as $field => $extra) {
+            if (! key_exists('autocomplete', $extra)) {
+                continue;
+            }
+            
+            $autocomplete[] = $field;
+        }
+        
+        return $autocomplete;
+    }
+
+    /**
+     * Validate store action
+     *
+     * @return array
+     */
+    public function store()
+    {
+        return $this->rules();
+    }
+
+    /**
+     * Validate update action
+     *
+     * @return array
+     */
+    public function update()
+    {
+        return $this->rules();
+    }
+
+    /**
+     * Validate update action
+     *
+     * @return array
+     */
+    public function autocomplete()
+    {
+        return [
+            'text' => 'required'
+        ];
     }
 }

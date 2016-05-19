@@ -316,6 +316,16 @@ abstract class Entity extends Model
     }
 
     /**
+     * Get the config of autocomplete.
+     *
+     * @return array
+     */
+    public function getAutocomplete()
+    {
+        return $this->getFieldManager()->getAutocomplete();
+    }
+
+    /**
      * Create a new Eloquent Collection instance.
      *
      * @param array $models            
@@ -331,7 +341,7 @@ abstract class Entity extends Model
      *
      * @return object Lab123\Odin\FieldManager
      */
-    private function getFieldManager()
+    public function getFieldManager()
     {
         /* Verifica se existe Field Manager com prefixo igual a controller */
         if (! $this->fieldManager) {

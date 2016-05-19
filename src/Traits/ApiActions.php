@@ -18,12 +18,50 @@ trait ApiActions
 
     /**
      * Display a listing of the resource.
+     * paginate
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(FilterRequest $filters)
+    public function index(FilterRequest $request)
     {
-        $resources = $this->repository->filter($filters)->paginate();
+        $resources = $this->repository->filter($request)->paginate();
+        
+        if ($resources->count() < 1) {
+            return $this->notFound();
+        }
+        
+        return $this->success($resources);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function lists(FilterRequest $request)
+    {
+        $resources = $this->repository->filter($request)->get();
+        
+        if ($resources->count() < 1) {
+            return $this->notFound();
+        }
+        
+        return $this->success($resources);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function autocomplete(FilterRequest $request)
+    {
+        $this->fieldManager = $this->getFieldManager();
+        $this->validate($request->request, $this->fieldManager->autocomplete());
+        
+        $text = $request->request->get('text');
+        
+        $resources = $this->repository->autocomplete($text)->get();
         
         if ($resources->count() < 1) {
             return $this->notFound();
@@ -37,7 +75,7 @@ trait ApiActions
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id, FilterRequest $filters)
+    public function show($id, FilterRequest $request)
     {
         $id = $this->getRealId($id);
         

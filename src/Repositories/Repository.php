@@ -33,6 +33,22 @@ abstract class Repository implements IRepository
     }
 
     /**
+     * Return find by autocomplete
+     *
+     * @return Illuminate\Database\Eloquent\Collection
+     */
+    public function autocomplete($text, $take = 5)
+    {
+        $fieldsAutocomplete = $this->model->getAutocomplete();
+        
+        foreach ($fieldsAutocomplete as $field) {
+            $this->model = $this->model->where($field, 'LIKE', '%' . $text . '%');
+        }
+        
+        return $this->model->take($take);
+    }
+
+    /**
      * Return collection of resources
      *
      * @return Illuminate\Database\Eloquent\Collection
