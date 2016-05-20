@@ -13,7 +13,7 @@ class Api
      */
     public static function url()
     {
-        return env('APP_URL', 'http://localhost');
+        return env('API_URL', 'http://localhost/api');
     }
 
     /**
