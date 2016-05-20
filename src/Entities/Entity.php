@@ -129,13 +129,13 @@ abstract class Entity extends Model
             $field = $relat->getForeignKey();
             
             if (! $this->$field/* || ! Request::is($parentResourceName . '/*')*/) {
-                return url();
+                return url('/');
             }
             
-            return url() . '/' . $parentResourceName . '/' . Api::encodeHashId($this->$field);
+            return url('/') . '/' . $parentResourceName . '/' . Api::encodeHashId($this->$field);
         }
         
-        return url();
+        return url('/');
     }
 
     /**
