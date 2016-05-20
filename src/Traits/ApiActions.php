@@ -24,7 +24,9 @@ trait ApiActions
      */
     public function index(FilterRequest $request)
     {
-        $resources = $this->repository->filter($request)->paginate();
+        $limit = $request->request->get('limit', 15);
+        
+        $resources = $this->repository->filter($request)->paginate($limit);
         
         if ($resources->count() < 1) {
             return $this->notFound();
