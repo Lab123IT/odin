@@ -29,7 +29,7 @@ trait ApiActions
         $resources = $this->repository->filter($request)->paginate($limit);
         
         if ($resources->count() < 1) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->success($resources);
@@ -45,7 +45,7 @@ trait ApiActions
         $resources = $this->repository->filter($request)->get();
         
         if ($resources->count() < 1) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->success($resources);
@@ -66,7 +66,7 @@ trait ApiActions
         $resources = $this->repository->autocomplete($text)->get();
         
         if ($resources->count() < 1) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->success($resources);
@@ -84,7 +84,7 @@ trait ApiActions
         $resource = $this->repository->find($id);
         
         if (! $resource) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->success($resource);
@@ -105,7 +105,7 @@ trait ApiActions
         $resource = $this->repository->create($input);
         
         if (! $resource) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->created($resource);
@@ -126,7 +126,7 @@ trait ApiActions
         $resource = $this->repository->update($request->all(), $id);
         
         if (! $resource) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         return $this->success($resource);
@@ -144,7 +144,7 @@ trait ApiActions
         $resource = $this->repository->find($id);
         
         if (! $resource) {
-            return $this->notFound();
+            //return $this->notFound();
         }
         
         $result = $resource->delete();
