@@ -25,7 +25,11 @@ class Collection extends IlluminateCollection
         
         $entity = $this->items[0];
         
-        $entity->autoload();
+        if (is_array($entity->load)) {
+            foreach ($entity->load as $k => $load) {
+                $this->load($load);
+            }
+        }
         
         $data = parent::toArray();
         $actions = $entity->getActions();

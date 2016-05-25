@@ -286,11 +286,11 @@ abstract class Entity extends Model
             return;
         }
         
-        if (is_array($this->load)) {
+        /*if (is_array($this->load)) {
             foreach ($this->load as $k => $load) {
                 $this->load($load);
             }
-        }
+        }*/
         
         if (is_array($this->loadUri)) {
             foreach ($this->loadUri as $k => $load) {
