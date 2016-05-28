@@ -176,6 +176,16 @@ abstract class FieldManager
      *
      * @return array
      */
+    public function associate()
+    {
+        return [];
+    }
+
+    /**
+     * Validate update action
+     *
+     * @return array
+     */
     public function autocomplete()
     {
         return [

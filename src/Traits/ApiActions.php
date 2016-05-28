@@ -144,7 +144,7 @@ trait ApiActions
         $resource = $this->repository->find($id);
         
         if (! $resource) {
-            //return $this->notFound();
+            return $this->notFound();
         }
         
         $result = $resource->delete();
