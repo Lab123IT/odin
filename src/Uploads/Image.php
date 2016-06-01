@@ -80,7 +80,7 @@ class Image
      *
      * @return void
      */
-    public function create(UploadedFile $file, $name = '')
+    public function create($file, $name = '')
     {
         $this->fill(compact('file', 'name'));
         
