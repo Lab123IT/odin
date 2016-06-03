@@ -286,11 +286,11 @@ abstract class Entity extends Model
             return;
         }
         
-        /*if (is_array($this->load)) {
+        if (is_array($this->load)) {
             foreach ($this->load as $k => $load) {
                 $this->load($load);
             }
-        }*/
+        }
         
         if (is_array($this->loadUri)) {
             foreach ($this->loadUri as $k => $load) {
@@ -351,6 +351,7 @@ abstract class Entity extends Model
             
             /* Verifica se existe o Field Manager para o recurso */
             if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
+                return null;
                 echo "Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers";
                 exit();
             }
