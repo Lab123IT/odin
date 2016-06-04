@@ -14,9 +14,7 @@ class FilterRequest
 
     public $includes;
 
-    public $limit = 12;
-
-    public $maxLimit = 50;
+    public $limit = 10000;
 
     public $order;
 
@@ -76,26 +74,14 @@ class FilterRequest
     }
 
     /**
-     * Seta o número de recursos retornados (máximo 50)
+     * Seta o número de recursos retornados
      *
      * @return this
      */
     public function setLimit()
     {
         $this->limit = $this->request->get('limit', $this->limit);
-        $this->limit = ($this->limit > $this->maxLimit) ? $this->maxLimit : $this->limit;
         
-        return $this;
-    }
-
-    /**
-     * Seta o número máximo de recursos retornados
-     *
-     * @return this
-     */
-    public function setMaxLimit($maxLimit = 50)
-    {
-        $this->maxLimit = $maxLimit;
         return $this;
     }
 
