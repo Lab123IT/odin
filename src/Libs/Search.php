@@ -39,6 +39,7 @@ class Search
             ->includes()
             ->limit()
             ->orderBy()
+            ->groupBy()
             ->criteria();
     }
 
@@ -82,11 +83,13 @@ class Search
             list ($field, $operator, $value) = explode(',', $criteria);
             
             /* Verifica se o campo enviado é filtrável */
-            /*if (! $this->isAvailableAttribute($field)) {
-                continue;
-            }*/
+            /*
+             * if (! $this->isAvailableAttribute($field)) {
+             * continue;
+             * }
+             */
             
-            if(strtoupper($operator) === 'IN') {
+            if (strtoupper($operator) === 'IN') {
                 $inArray[$field][] = $value;
                 continue;
             }
@@ -98,8 +101,8 @@ class Search
         if (count($inArray)) {
             foreach ($inArray as $field => $data) {
                 $this->builder = $this->builder->whereIn($field, $data);
-            }            
-        }       
+            }
+        }
         
         return $this;
     }
@@ -137,6 +140,20 @@ class Search
             $order[1] = (array_key_exists(1, $order)) ? $order[1] : '';
             
             $this->builder = $this->builder->orderBy($order[0], $order[1]);
+        }
+        
+        return $this;
+    }
+
+    /**
+     * Set order to return in select
+     *
+     * @return this
+     */
+    public function groupBy()
+    {
+        if ($this->filters->group) {
+            $this->builder = $this->builder->groupBy($this->filters->group);
         }
         
         return $this;

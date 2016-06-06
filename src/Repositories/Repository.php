@@ -402,7 +402,7 @@ abstract class Repository implements IRepository
         
         $parent->$relation()->attach($idChild, $data);
         
-        return true;
+        return $parent->$relation()->find($idChild);
     }
 
     /**
@@ -511,5 +511,22 @@ abstract class Repository implements IRepository
         }
         
         return $resource->delete();
+    }
+
+    /**
+     * Autocomplete
+     *
+     * @return array;
+     */
+    public function autocomplete($text)
+    {
+        $fields = $this->model->getAutocomplete();
+        $this->builder = $this->model;
+        
+        foreach ($fields as $field) {
+            $this->builder = $this->builder->orWhere($field, 'like', "%$text%");
+        }
+        
+        return $this;
     }
 }

@@ -123,6 +123,9 @@ abstract class Entity extends Model
         if ($this->getParentName()) {
             
             $func = $this->getParentName();
+            if (!is_string($func)) {
+                return;
+            }
             $relat = $this->$func();
             $parentResourceName = $relat->getRelated()->getResourceName();
             

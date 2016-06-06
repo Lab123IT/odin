@@ -189,7 +189,7 @@ abstract class FieldManager
     public function autocomplete()
     {
         return [
-            'text' => 'required'
+            'text' => ''
         ];
     }
 }

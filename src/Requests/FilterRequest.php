@@ -14,9 +14,13 @@ class FilterRequest
 
     public $includes;
 
-    public $limit = 10000;
+    public $limit = 12;
+
+    public $maxLimit = 50;
 
     public $order;
+
+    public $group;
 
     public function __construct(Request $request)
     {
@@ -36,7 +40,8 @@ class FilterRequest
             ->setCriteria()
             ->setIncludes()
             ->setLimit()
-            ->setOrder();
+            ->setOrder()
+            ->setGroup();
     }
 
     /**
@@ -74,14 +79,26 @@ class FilterRequest
     }
 
     /**
-     * Seta o número de recursos retornados
+     * Seta o número de recursos retornados (máximo 50)
      *
      * @return this
      */
     public function setLimit()
     {
         $this->limit = $this->request->get('limit', $this->limit);
+        $this->limit = ($this->limit > $this->maxLimit) ? $this->maxLimit : $this->limit;
         
+        return $this;
+    }
+
+    /**
+     * Seta o número máximo de recursos retornados
+     *
+     * @return this
+     */
+    public function setMaxLimit($maxLimit = 50)
+    {
+        $this->maxLimit = $maxLimit;
         return $this;
     }
 
@@ -93,6 +110,17 @@ class FilterRequest
     public function setOrder()
     {
         $this->order = $this->request->get('order', []);
+        return $this;
+    }
+
+    /**
+     * Seta a ordenação dos recursos
+     *
+     * @return this
+     */
+    public function setGroup()
+    {
+        $this->group = $this->request->get('group', '');
         return $this;
     }
 

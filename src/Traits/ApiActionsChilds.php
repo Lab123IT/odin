@@ -21,7 +21,7 @@ trait ApiActionsChilds
         $resource = $this->repository->getChilds($id, $relation, $filters);
         
         if (! $resource || count($resource) < 1) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success($resource);
@@ -40,7 +40,7 @@ trait ApiActionsChilds
         $resource = $this->repository->getChild($id, $relation, $idChild);
         
         if (! $resource) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success($resource);
@@ -58,7 +58,7 @@ trait ApiActionsChilds
         $resource = $this->repository->storeChild($idParent, $relation, $filters->all());
         
         if (! $resource) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success($resource);
@@ -76,7 +76,7 @@ trait ApiActionsChilds
         $resource = $this->repository->storeChildAndPivot($idParent, $relation, $request->all());
         
         if (! $resource) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success($resource);
@@ -92,11 +92,15 @@ trait ApiActionsChilds
         $idParent = $this->getRealId($idParent);
         $idChild = $this->getRealId($idChild);
         
-        if (! $this->repository->attach($idParent, $idChild, $relation, $request->all())) {
-            //return $this->notFound();
+        $resourceChild = $this->repository->attach($idParent, $idChild, $relation, $request->all());
+        
+        if (! $resourceChild) {
+            // return $this->notFound();
         }
         
-        return $this->success([]);
+        return $this->success([
+            $resourceChild
+        ]);
     }
 
     /**
@@ -110,7 +114,7 @@ trait ApiActionsChilds
         $idChild = $this->getRealId($idChild);
         
         if (! $this->repository->detach($idParent, $idChild, $relation)) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success([]);
@@ -129,7 +133,7 @@ trait ApiActionsChilds
         $resource = $this->repository->updateChild($idParent, $relation, $idChild, $filters->all());
         
         if (! $resource) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success($resource);
@@ -148,7 +152,7 @@ trait ApiActionsChilds
         $resource = $this->repository->deleteChild($idParent, $relation, $idChild);
         
         if ($resource == null) {
-            //return $this->notFound();
+            // return $this->notFound();
         }
         
         return $this->success();
