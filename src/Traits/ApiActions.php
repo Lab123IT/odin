@@ -37,7 +37,7 @@ trait ApiActions
         $filter = $this->repository->filter($request);
         
         if ($this->list) {
-            $resources = $filter->get($limit);
+            $resources = $filter->get(1000);
         } else {
             $resources = $filter->paginate($limit);
         }
@@ -171,7 +171,7 @@ trait ApiActions
      *
      * @return object Lab123\Odin\FieldManager
      */
-    private function getFieldManager()
+    protected function getFieldManager()
     {
         /* Verifica se existe Field Manager com prefixo igual a controller */
         if (! $this->fieldManager) {

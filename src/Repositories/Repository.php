@@ -171,8 +171,11 @@ abstract class Repository implements IRepository
      * @param int|null $page            
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function get()
+    public function get($limit = null)
     {
+        if ($limit) {
+            $this->builder->take($limit);
+        }
         return $this->builder->get();
     }
 

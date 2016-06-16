@@ -1,5 +1,5 @@
 <?php
-namespace Odin\Logger;
+namespace Lab123\Odin\Logger;
 
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
