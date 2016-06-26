@@ -523,11 +523,17 @@ abstract class Repository implements IRepository
      */
     public function autocomplete($text)
     {
+        if (! $this->builder) {
+            $this->builder = $this->model;
+        }
+        
         $fields = $this->model->getAutocomplete();
-        $this->builder = $this->model;
         
         foreach ($fields as $field) {
-            $this->builder = $this->builder->orWhere($field, 'like', "%$text%");
+            
+            $this->builder = $this->builder->where(function ($query) use ($field, $text) {
+                $query->orWhere($field, 'like', "%$text%");
+            });
         }
         
         return $this;

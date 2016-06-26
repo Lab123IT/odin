@@ -77,7 +77,7 @@ trait ApiActions
         
         $text = $request->request->get('text');
         
-        $resources = $this->repository->autocomplete($text)->get();
+        $resources = $this->repository->filter($request)->autocomplete($text)->get();
         
         if ($resources->count() < 1) {
             // return $this->notFound();

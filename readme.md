@@ -64,7 +64,7 @@ Veja algumas propriedades extras:
 
 	protected $resource = "meu-recurso";
 	
-Essa propriedade define o nome do recurso que será retornado na propriedade uri na consulta ao seu recurso.
+Essa propriedade define o nome do recurso que será retornado na propriedade url na consulta ao seu recurso.
 
 **Ex:**
 
@@ -75,7 +75,7 @@ Essa propriedade define o nome do recurso que será retornado na propriedade uri
  
 	GET http://api.meu-sistema.dev/users
 	{
-		"uri" => "http://api.meu-sistema.dev/users",
+		"url" => "http://api.meu-sistema.dev/users",
 		"nome" => "Jean Pierre",
 		"idade" => 23
 	}

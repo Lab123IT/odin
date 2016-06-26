@@ -123,7 +123,7 @@ abstract class Entity extends Model
         if ($this->getParentName()) {
             
             $func = $this->getParentName();
-            if (!is_string($func)) {
+            if (! is_string($func)) {
                 return;
             }
             $relat = $this->$func();
@@ -369,5 +369,30 @@ abstract class Entity extends Model
         
         /* Objeto já instanciado, só retornar */
         return $this->fieldManager;
+    }
+
+    /**
+     * Copia a entidade e suas relações
+     *
+     * @return object
+     */
+    public function copy()
+    {
+        // copy attributes
+        $new = $this->replicate();
+        
+        // save model before you recreate relations (so it has an id)
+        $new->save();
+        
+        // re-sync everything
+        foreach ($this->relations as $relationName => $values) {
+            if ($new->{$relationName}() instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
+                $new->{$relationName}()->sync($values);
+            } else {
+                $new->{$relationName}()->attach($values);
+            }
+        }
+        
+        return $new;
     }
 }
