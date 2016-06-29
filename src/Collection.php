@@ -16,7 +16,7 @@ class Collection extends IlluminateCollection
      */
     public function toArray()
     {
-        $uris = [];
+        $urls = [];
         $actions = [];
         
         if (count($this->items) < 1) {
@@ -70,9 +70,9 @@ class Collection extends IlluminateCollection
         
         foreach ($data as $k => $value) {
             if (key_exists('uri', $value)) {
-                $uriExploded = explode('/', $value['uri']);
-                array_pop($uriExploded);
-                $rootUriResource = implode('/', $uriExploded);
+                $urlExploded = explode('/', $value['uri']);
+                array_pop($urlExploded);
+                $rootUriResource = implode('/', $urlExploded);
             }
             unset($data[$k]);
             $data[$k] = array_last($value);
@@ -80,7 +80,7 @@ class Collection extends IlluminateCollection
         }
         
         $data = [
-            'uri' => $rootUriResource
+            'url' => $rootUriResource
         ] + $data;
         
         return $data;

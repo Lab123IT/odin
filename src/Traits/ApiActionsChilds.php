@@ -5,6 +5,7 @@ use Lab123\Odin\Requests\FilterRequest;
 use Lab123\Odin\Libs\Api;
 use App;
 use DB;
+use Illuminate\Http\Request;
 
 trait ApiActionsChilds
 {
@@ -52,7 +53,7 @@ trait ApiActionsChilds
      * @return \Illuminate\Http\Response
      */
     public function childStore($idParent, FilterRequest $filters, $relation)
-    {
+    {        
         $idParent = $this->getRealId($idParent);
         
         $resource = $this->repository->storeChild($idParent, $relation, $filters->all());
@@ -89,6 +90,10 @@ trait ApiActionsChilds
      */
     public function childAssociate($request, $idParent, $idChild, $relation)
     {
+        $request->request->merge([
+            'url' => $request->request->path()
+        ]);
+        
         $idParent = $this->getRealId($idParent);
         $idChild = $this->getRealId($idChild);
         

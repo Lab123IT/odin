@@ -44,9 +44,13 @@ class Pivot extends Entity
      * @param bool $exists            
      * @return void
      */
-    public function __construct(Entity $parent, $attributes, $table, $exists = false)
+    public function __construct($parent = null, $attributes = null, $table = null, $exists = false)
     {
         parent::__construct();
+        
+        if (! $parent) {
+            return;
+        }
         
         // The pivot model is a "dynamic" model since we will set the tables dynamically
         // for the instance. This allows it work for any intermediate tables for the
@@ -177,6 +181,9 @@ class Pivot extends Entity
      */
     public function getCreatedAtColumn()
     {
+        if (! $this->parent) {
+            return static::CREATED_AT;
+        }
         return $this->parent->getCreatedAtColumn();
     }
 
@@ -187,6 +194,9 @@ class Pivot extends Entity
      */
     public function getUpdatedAtColumn()
     {
+        if (! $this->parent) {
+            return static::UPDATED_AT;
+        }
         return $this->parent->getUpdatedAtColumn();
     }
 }
