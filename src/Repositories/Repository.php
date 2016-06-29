@@ -20,6 +20,17 @@ abstract class Repository implements IRepository
      * Builder of Model
      */
     protected $builder;
+    
+    /**
+     * Return a resource by id
+     *
+     * @param $id int
+     * @return Illuminate\Database\Eloquent\Model
+     */
+    public function getFieldManager()
+    {
+    	return $this->model->getFieldManager();
+    }
 
     /**
      * Return a resource by id

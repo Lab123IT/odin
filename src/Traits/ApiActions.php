@@ -175,18 +175,7 @@ trait ApiActions
     {
         /* Verifica se existe Field Manager com prefixo igual a controller */
         if (! $this->fieldManager) {
-            $pathClassExploded = explode('\\', get_class($this));
-            $namespace = array_first($pathClassExploded);
-            $nameController = array_last($pathClassExploded);
-            $resourceName = str_replace('Controller', '', $nameController);
-            
-            /* Verifica se existe o Field Manager para o recurso */
-            if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
-                echo "Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers";
-                exit();
-            }
-            
-            $this->fieldManager = $namespace . "\\FieldManagers\\{$resourceName}FieldManager";
+        	$this->fieldManager = $this->repository->getFieldManager();
         }
         
         /* Ainda precisa instanciar o objeto */
