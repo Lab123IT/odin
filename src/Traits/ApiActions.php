@@ -36,7 +36,7 @@ trait ApiActions
         
         $filter = $this->repository->filter($request);
         
-        if ($this->list) {
+        if ($this->list || $request->request->get('search_type') == 'list') {
             $resources = $filter->get(1000);
         } else {
             $resources = $filter->paginate($limit);

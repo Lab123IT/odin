@@ -180,6 +180,16 @@ abstract class Repository implements IRepository
     }
 
     /**
+     * Return one.
+     *
+     * @return Illuminate\Database\Eloquent\Model
+     */
+    public function first()
+    {
+        return $this->builder->first();
+    }
+
+    /**
      * Paginate the given query into a simple paginator.
      *
      * @param int $perPage            
@@ -531,7 +541,7 @@ abstract class Repository implements IRepository
         
         foreach ($fields as $field) {
             
-            $this->builder = $this->builder->where(function ($query) use ($field, $text) {
+            $this->builder = $this->builder->where(function ($query) use($field, $text) {
                 $query->orWhere($field, 'like', "%$text%");
             });
         }

@@ -376,10 +376,13 @@ abstract class Entity extends Model
      *
      * @return object
      */
-    public function copy()
+    public function copy($attributes = [])
     {
         // copy attributes
         $new = $this->replicate();
+        
+        // fill attributes resource
+        $new->fill($attributes);
         
         // save model before you recreate relations (so it has an id)
         $new->save();
