@@ -75,5 +75,9 @@ class LumenServiceProvider extends ServiceProvider
         app()->singleton('filesystem', function ($app) {
             return $app->loadComponent('filesystems', 'Illuminate\Filesystem\FilesystemServiceProvider', 'filesystem');
         });
+        
+        $this->commands(\Lab123\Odin\Command\LumenRouteList::class);
+        $this->commands(\Lab123\Odin\Command\LumenAppNameCommand::class);
+        $this->commands(\Lab123\Odin\Command\LumenVendorPublish::class);
     }
 }
