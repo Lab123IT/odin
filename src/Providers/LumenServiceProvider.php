@@ -79,5 +79,6 @@ class LumenServiceProvider extends ServiceProvider
         $this->commands(\Lab123\Odin\Command\LumenRouteList::class);
         $this->commands(\Lab123\Odin\Command\LumenAppNameCommand::class);
         $this->commands(\Lab123\Odin\Command\LumenVendorPublish::class);
+        $this->commands(\Lab123\Odin\Command\GeneratePasswordCommand::class);
     }
 }
