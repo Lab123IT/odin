@@ -461,10 +461,6 @@ abstract class Repository implements IRepository
             
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
-            $data = $this->builder->get();
-            
-            dd($parent);
-            dd($data[0]);
             
             return $this->builder->get();
         }

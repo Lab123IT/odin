@@ -95,7 +95,11 @@ trait ApiActions
     {
         $id = $this->getRealId($id);
         
-        $resource = $this->repository->find($id);
+        $request->criteria[] = 'id,=,' . $id;
+        
+        $resource = $this->repository->filter($request)->first();
+        
+        //$resource = $this->repository->find($id);
         
         if (! $resource) {
             // return $this->notFound();
