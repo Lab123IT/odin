@@ -7,62 +7,94 @@ abstract class Observer
 {
 
     /**
+     * Entity Reference (App\Entities\Entity::class)
+     */
+    protected $entity;
+
+    /**
+     * Observers available
+     */
+    protected $observers = [
+        'creating',
+        'created',
+        'saving',
+        'saved',
+        'updating',
+        'updated',
+        'deleting',
+        'deleted'
+    ];
+
+    /**
+     * Create a new Observer instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->activeObservers();
+    }
+
+    /**
+     * Active observers
+     *
+     * @return void
+     */
+    protected function activeObservers()
+    {
+        foreach ($this->observers as $observer) {
+            
+            $this->entity::$observer(function ($entity) use ($observer) {
+                $this->$observer($entity);
+            });
+        }
+    }
+
+    /**
      * Active observer in trigger creating
      */
-    protected function creating(Entity $model)
+    protected function creating($entity)
     {}
 
     /**
      * Active observer in trigger created
      */
-    protected function created(Entity $model)
+    protected function created($entity)
     {}
 
     /**
      * Active observer in trigger saving
      */
-    protected function saving(Entity $model)
+    protected function saving($entity)
     {}
 
     /**
      * Active observer in trigger saved
      */
-    protected function saved(Entity $model)
+    protected function saved($entity)
     {}
 
     /**
      * Active observer in trigger updating
      */
-    protected function updating(Entity $model)
+    protected function updating($entity)
     {}
 
     /**
      * Active observer in trigger updated
      */
-    protected function updated(Entity $model)
+    protected function updated($entity)
     {}
 
     /**
      * Active observer in trigger deleting
      */
-    protected function deleting(Entity $model)
+    protected function deleting($entity)
     {}
 
     /**
      * Active observer in trigger deleted
      */
-    protected function deleted(Entity $model)
-    {}
-
-    /**
-     * Active observer in trigger restoring
-     */
-    protected function restoring(Entity $model)
-    {}
-
-    /**
-     * Active observer in trigger restored
-     */
-    protected function restored(Entity $model)
+    protected function deleted($entity)
     {}
 }
