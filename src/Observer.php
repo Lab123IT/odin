@@ -44,7 +44,9 @@ abstract class Observer
     {
         foreach ($this->observers as $observer) {
             
-            $this->entity::$observer(function ($entity) use ($observer) {
+            $entity = $this->entity;
+            
+            $entity::$observer(function ($entity) use ($observer) {
                 $this->$observer($entity);
             });
         }
