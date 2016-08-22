@@ -30,7 +30,7 @@ class ServiceProvider extends BaseServiceProvider
      *
      * @return void
      */
-    public function publishConfigs()
+    protected function publishConfigs()
     {
         $this->publishes([
             __DIR__ . '/../Config/odin.php' => $this->config_path('odin.php')
