@@ -13,35 +13,9 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        parent::boot();
-        
         $this->publishHelper();
         
-        $this->publishConfigFilesystem();
-    }
-
-    /**
-     * Publish helpers for Lumen.
-     *
-     * @return void
-     */
-    public function publishConfigFilesystem()
-    {
-        $this->publishes([
-            __DIR__ . '/../Config/filesystems.php' => $this->config_path('filesystems.php')
-        ]);
-    }
-
-    /**
-     * Publish helpers for Lumen.
-     *
-     * @return void
-     */
-    public function publishHelper()
-    {
-        $this->publishes([
-            __DIR__ . '/../Helpers/helpers.php' => app()->basePath('app/Supports/') . 'helpers.php'
-        ]);
+        parent::boot();
     }
 
     /**
@@ -51,9 +25,43 @@ class LumenServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        parent::register();
+        $this->registerConfigs();
         
-        $this->registerLumen();
+        $this->registerCommands();
+        
+        $this->registerAlias();
+        
+        $this->registerFeaturesLumen();
+        
+        $this->registerFilesystem();
+        
+        parent::register();
+    }
+
+    /**
+     * Publish configs.
+     *
+     * @return void
+     */
+    protected function publishConfigs()
+    {
+        $this->publishes([
+            __DIR__ . '/../Config/filesystems.php' => $this->config_path('filesystems.php')
+        ]);
+        
+        parent::publishConfigs();
+    }
+
+    /**
+     * Publish helpers for Lumen.
+     *
+     * @return void
+     */
+    protected function publishHelper()
+    {
+        $this->publishes([
+            __DIR__ . '/../Helpers/helpers.php' => app()->basePath('app/Supports/') . 'helpers.php'
+        ]);
     }
 
     /**
@@ -61,24 +69,60 @@ class LumenServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function registerLumen()
+    protected function registerCommands()
+    {
+        $this->commands(\Lab123\Odin\Command\AppRestart::class);
+        $this->commands(\Lab123\Odin\Command\AppStart::class);
+        $this->commands(\Lab123\Odin\Command\GeneratePasswordCommand::class);
+        $this->commands(\Lab123\Odin\Command\LumenAppNameCommand::class);
+        $this->commands(\Lab123\Odin\Command\LumenRouteList::class);
+        $this->commands(\Lab123\Odin\Command\LumenVendorPublish::class);
+        $this->commands(\Lab123\Odin\Command\LumenModelMake::class);
+    }
+
+    /**
+     * Register configs.
+     *
+     * @return void
+     */
+    protected function registerConfigs()
     {
         app()->configure('odin');
-        
+        app()->configure('filesystem');
+    }
+
+    /**
+     * Active features Lumen.
+     *
+     * @return void
+     */
+    protected function registerFeaturesLumen()
+    {
+        app()->withFacades();
+        app()->withEloquent();
+    }
+
+    /**
+     * Alias to adapter Lumen.
+     *
+     * @return void
+     */
+    protected function registerAlias()
+    {
         class_alias('Illuminate\Support\Facades\App', 'App');
         class_alias('Illuminate\Support\Facades\Request', 'Request');
         class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
-        
-        app()->withFacades();
-        app()->withEloquent();
-        
+    }
+
+    /**
+     * Register component FileSystem.
+     *
+     * @return void
+     */
+    protected function registerFilesystem()
+    {
         app()->singleton('filesystem', function ($app) {
             return $app->loadComponent('filesystems', 'Illuminate\Filesystem\FilesystemServiceProvider', 'filesystem');
         });
-        
-        $this->commands(\Lab123\Odin\Command\LumenRouteList::class);
-        $this->commands(\Lab123\Odin\Command\LumenAppNameCommand::class);
-        $this->commands(\Lab123\Odin\Command\LumenVendorPublish::class);
-        $this->commands(\Lab123\Odin\Command\GeneratePasswordCommand::class);
     }
 }

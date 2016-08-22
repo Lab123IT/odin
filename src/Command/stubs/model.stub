@@ -1,0 +1,9 @@
+<?php
+namespace DummyNamespace;
+
+use DummyNamespace\Entity;
+
+class DummyClass extends Entity
+{
+    //
+}

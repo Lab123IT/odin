@@ -2,6 +2,7 @@
 namespace Lab123\Odin\Providers;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Lab123\Odin\BladeDirective;
 use Hashids\Hashids;
 use DB;
 
@@ -20,6 +21,8 @@ class ServiceProvider extends BaseServiceProvider
         $this->publishTranslate();
         
         $this->dbLog();
+        
+        (new BladeDirective())->active();
     }
 
     /**
@@ -93,6 +96,11 @@ class ServiceProvider extends BaseServiceProvider
         return app()->basePath('config/') . $path;
     }
 
+    /**
+     * Active Query Log
+     *
+     * @return void
+     */
     private function dbLog()
     {
         if (config('odin.queryRequest')) {
