@@ -271,9 +271,9 @@ abstract class Entity extends Model
             $array = $this->getFieldManager()->transformToFrontName($array);
         }
         
-        $array = array(
+        /*$array = array(
             'uri' => $this->getResourceData()
-        ) + $array;
+        ) + $array;*/
         
         return $array;
     }

@@ -2,6 +2,7 @@
 namespace Lab123\Odin\Requests;
 
 use Illuminate\Http\Request;
+use Lab123\Odin\Enums\RequestReservedWords;
 
 class FilterRequest
 {
@@ -38,6 +39,7 @@ class FilterRequest
     {
         $this->setFields()
             ->setCriteria()
+            ->setCriteriaByQueryString()
             ->setIncludes()
             ->setLimit()
             ->setOrder()
@@ -121,6 +123,25 @@ class FilterRequest
     public function setGroup()
     {
         $this->group = $this->request->get('group', '');
+        return $this;
+    }
+
+    /**
+     * Seta os filtros não enviados por criteria
+     *
+     * @return this
+     */
+    public function setCriteriaByQueryString()
+    {
+        $data = $this->request->except(RequestReservedWords::all());
+        
+        $request = $this->request->all();
+        foreach ($data as $k => $v) {
+            $request['criteria'][] = $k . ',=,' . $v;
+        }
+        
+        $this->request->merge($request);
+        
         return $this;
     }
 
