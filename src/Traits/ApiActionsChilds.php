@@ -38,7 +38,7 @@ trait ApiActionsChilds
         $id = $this->getRealId($id);
         $idChild = $this->getRealId($idChild);
         
-        $resource = $this->repository->getChild($id, $relation, $idChild);
+        $resource = $this->repository->getChild($id, $relation, $idChild, $filters);
         
         if (! $resource) {
             // return $this->notFound();

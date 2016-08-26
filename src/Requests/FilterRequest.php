@@ -38,8 +38,8 @@ class FilterRequest
     public function setFilters()
     {
         $this->setFields()
-            ->setCriteria()
             ->setCriteriaByQueryString()
+            ->setCriteria()
             ->setIncludes()
             ->setLimit()
             ->setOrder()
@@ -77,6 +77,11 @@ class FilterRequest
     public function setIncludes()
     {
         $this->includes = $this->request->get('includes', []);
+        
+        if (is_string($this->includes)) {
+            $this->includes = explode(',', $this->includes);
+        }
+        
         return $this;
     }
 

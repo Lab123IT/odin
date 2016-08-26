@@ -4,9 +4,7 @@ namespace Lab123\Odin\Repositories;
 use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Requests\FilterRequest;
 use Lab123\Odin\Libs\Search;
-use Lab123\Odin\Libs\Api;
 use Request;
-use App;
 
 abstract class Repository implements IRepository
 {
@@ -475,7 +473,7 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function getChild($id, $relation, $idChild)
+    public function getChild($id, $relation, $idChild, $filters = null)
     {
         $parent = $this->model->find($id);
         
@@ -483,7 +481,16 @@ abstract class Repository implements IRepository
             return null;
         }
         
-        $resource = $parent->$relation()->find($idChild);
+        if (count($filters->request->all()) > 0) {
+            $child = $parent->$relation()->getRelated();
+        
+            $search = new Search($child, $filters, $parent->$relation());
+            $this->builder = $search->getBuilder();
+        
+            $resource = $this->builder->get();
+        } else {
+            $resource = $parent->$relation()->find($idChild);
+        }
         
         return $resource;
     }
