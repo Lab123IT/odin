@@ -17,4 +17,6 @@ abstract class RequestReservedWords extends Enum
     const order = 'order';
 
     const group = 'group';
+
+    const page = 'page';
 }
