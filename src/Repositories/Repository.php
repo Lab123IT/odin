@@ -18,16 +18,16 @@ abstract class Repository implements IRepository
      * Builder of Model
      */
     protected $builder;
-    
+
     /**
      * Return a resource by id
      *
-     * @param $id int
+     * @param $id int            
      * @return Illuminate\Database\Eloquent\Model
      */
     public function getFieldManager()
     {
-    	return $this->model->getFieldManager();
+        return $this->model->getFieldManager();
     }
 
     /**
@@ -247,6 +247,8 @@ abstract class Repository implements IRepository
     {
         $search = new Search($this->model, $filters);
         $this->builder = $search->getBuilder();
+        
+        $this->extraFilter($filters);
         
         return $this;
     }
@@ -483,10 +485,10 @@ abstract class Repository implements IRepository
         
         if (count($filters->request->all()) > 0) {
             $child = $parent->$relation()->getRelated();
-        
+            
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
-        
+            
             $resource = $this->builder->get();
         } else {
             $resource = $parent->$relation()->find($idChild);
@@ -555,11 +557,21 @@ abstract class Repository implements IRepository
         
         foreach ($fields as $field) {
             
-            $this->builder = $this->builder->where(function ($query) use($field, $text) {
+            $this->builder = $this->builder->where(function ($query) use ($field, $text) {
                 $query->orWhere($field, 'like', "%$text%");
             });
         }
         
+        return $this;
+    }
+
+    /**
+     * Extra filter
+     *
+     * @return this;
+     */
+    protected function extraFilter(FilterRequest $filters)
+    {
         return $this;
     }
 }

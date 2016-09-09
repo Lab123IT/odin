@@ -3,6 +3,8 @@ namespace Lab123\Odin\Requests;
 
 use Illuminate\Http\Request;
 use Lab123\Odin\Enums\RequestReservedWords;
+use DB;
+use Illuminate\Support\Facades\Config;
 
 class FilterRequest
 {
@@ -37,13 +39,29 @@ class FilterRequest
      */
     public function setFilters()
     {
-        $this->setFields()
+        $this->activeQueryLog()
+            ->setFields()
             ->setCriteriaByQueryString()
             ->setCriteria()
             ->setIncludes()
             ->setLimit()
             ->setOrder()
             ->setGroup();
+    }
+
+    /**
+     * Seta os campos para a consulta
+     *
+     * @return this
+     */
+    public function activeQueryLog()
+    {
+        if ($this->request->get('queries', false) && (env('APP_ENV') === 'local' || env('APP_ENV') === 'staging')) {
+            DB::enableQueryLog();
+            config(['odin.queryRequest' => true]);
+        }
+        
+        return $this;
     }
 
     /**
