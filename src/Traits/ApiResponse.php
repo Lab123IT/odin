@@ -199,7 +199,7 @@ trait ApiResponse
      */
     private function getQueries()
     {
-        $queries = DB::getQueryLog();
+        return $queries = DB::getQueryLog();
         
         $formattedQueries = [];
         foreach ($queries as $query) {
