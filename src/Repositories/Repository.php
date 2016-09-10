@@ -248,8 +248,6 @@ abstract class Repository implements IRepository
         $search = new Search($this->model, $filters);
         $this->builder = $search->getBuilder();
         
-        $this->extraFilter($filters);
-        
         return $this;
     }
 
@@ -489,6 +487,12 @@ abstract class Repository implements IRepository
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
             
+            /* N:N precisa add o id da outra tabela */
+            if ($parent->$relation() instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
+                $this->builder->where($parent->$relation()
+                    ->getOtherKey(), $idChild);
+            }
+            
             $resource = $this->builder->get();
         } else {
             $resource = $parent->$relation()->find($idChild);
@@ -562,16 +566,6 @@ abstract class Repository implements IRepository
             });
         }
         
-        return $this;
-    }
-
-    /**
-     * Extra filter
-     *
-     * @return this;
-     */
-    protected function extraFilter(FilterRequest $filters)
-    {
         return $this;
     }
 }
