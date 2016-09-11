@@ -460,6 +460,9 @@ abstract class Repository implements IRepository
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
             
+            /* Retorna os dados apenas da table/resource atual */
+            $this->builder->select("{$child->getTable()}.*");
+            
             return $this->builder->get();
         }
         
@@ -486,6 +489,9 @@ abstract class Repository implements IRepository
             
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
+            
+            /* Retorna os dados apenas da table/resource atual */
+            $this->builder->select("{$child->getTable()}.*");
             
             /* N:N precisa add o id da outra tabela */
             if ($parent->$relation() instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
