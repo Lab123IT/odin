@@ -1,10 +1,10 @@
 <?php
 namespace Lab123\Odin\Traits;
 
-use Lab123\Odin\Enums\Responses;
-use Lab123\Odin\Entities\Entity;
-use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+use Lab123\Odin\Entities\Entity;
+use Lab123\Odin\Enums\Responses;
 use Log;
 use App;
 use DB;
@@ -119,7 +119,7 @@ trait ApiResponse
     public function response(array $data, $http_code)
     {
         if (config('odin.queryRequest')) {
-            $data['queries'] = DB::getQueryLog();
+            $data['queries'] = $this->getQueries();
         }
         return response()->json($data, $http_code);
     }
@@ -184,11 +184,34 @@ trait ApiResponse
         /* Enviou uma Entidade como parâmetro */
         if (is_a($args[0], Entity::class)) {
             $entity = ($args[0]);
-            $entity->autoload();
-            //$data['data'] = $entity->toArray();
+            // $entity->autoload();
+            // $data['data'] = $entity->toArray();
             $data = $entity->toArray();
         }
         
         return $data;
+    }
+
+    /**
+     * Return entity data array or array blank
+     *
+     * @return array
+     */
+    private function getQueries()
+    {
+        return $queries = DB::getQueryLog();
+        
+        $formattedQueries = [];
+        foreach ($queries as $query) {
+            $prep = $query['query'];
+            
+            foreach ($query['bindings'] as $binding) {
+                $prep = preg_replace("#\?#", $binding, $prep, 1);
+            }
+            
+            $formattedQueries[] = $prep;
+        }
+        
+        return $formattedQueries;
     }
 }

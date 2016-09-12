@@ -4,9 +4,7 @@ namespace Lab123\Odin\Repositories;
 use Lab123\Odin\Contracts\IRepository;
 use Lab123\Odin\Requests\FilterRequest;
 use Lab123\Odin\Libs\Search;
-use Lab123\Odin\Libs\Api;
 use Request;
-use App;
 
 abstract class Repository implements IRepository
 {
@@ -20,6 +18,17 @@ abstract class Repository implements IRepository
      * Builder of Model
      */
     protected $builder;
+
+    /**
+     * Return a resource by id
+     *
+     * @param $id int            
+     * @return Illuminate\Database\Eloquent\Model
+     */
+    public function getFieldManager()
+    {
+        return $this->model->getFieldManager();
+    }
 
     /**
      * Return a resource by id
@@ -171,9 +180,22 @@ abstract class Repository implements IRepository
      * @param int|null $page            
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function get()
+    public function get($limit = null)
     {
+        if ($limit) {
+            $this->builder->take($limit);
+        }
         return $this->builder->get();
+    }
+
+    /**
+     * Return one.
+     *
+     * @return Illuminate\Database\Eloquent\Model
+     */
+    public function first()
+    {
+        return $this->builder->first();
     }
 
     /**
@@ -437,10 +459,9 @@ abstract class Repository implements IRepository
             
             $search = new Search($child, $filters, $parent->$relation());
             $this->builder = $search->getBuilder();
-            $data = $this->builder->get();
             
-            dd($parent);
-            dd($data[0]);
+            /* Retorna os dados apenas da table/resource atual */
+            $this->builder->select("{$child->getTable()}.*");
             
             return $this->builder->get();
         }
@@ -455,7 +476,7 @@ abstract class Repository implements IRepository
      *
      * @return \Illuminate\Database\Eloquent\Model;
      */
-    public function getChild($id, $relation, $idChild)
+    public function getChild($id, $relation, $idChild, $filters = null)
     {
         $parent = $this->model->find($id);
         
@@ -463,7 +484,25 @@ abstract class Repository implements IRepository
             return null;
         }
         
-        $resource = $parent->$relation()->find($idChild);
+        if (count($filters->request->all()) > 0) {
+            $child = $parent->$relation()->getRelated();
+            
+            $search = new Search($child, $filters, $parent->$relation());
+            $this->builder = $search->getBuilder();
+            
+            /* Retorna os dados apenas da table/resource atual */
+            $this->builder->select("{$child->getTable()}.*");
+            
+            /* N:N precisa add o id da outra tabela */
+            if ($parent->$relation() instanceof \Illuminate\Database\Eloquent\Relations\BelongsToMany) {
+                $this->builder->where($parent->$relation()
+                    ->getOtherKey(), $idChild);
+            }
+            
+            $resource = $this->builder->get();
+        } else {
+            $resource = $parent->$relation()->find($idChild);
+        }
         
         return $resource;
     }
@@ -520,11 +559,17 @@ abstract class Repository implements IRepository
      */
     public function autocomplete($text)
     {
+        if (! $this->builder) {
+            $this->builder = $this->model;
+        }
+        
         $fields = $this->model->getAutocomplete();
-        $this->builder = $this->model;
         
         foreach ($fields as $field) {
-            $this->builder = $this->builder->orWhere($field, 'like', "%$text%");
+            
+            $this->builder = $this->builder->where(function ($query) use ($field, $text) {
+                $query->orWhere($field, 'like', "%$text%");
+            });
         }
         
         return $this;

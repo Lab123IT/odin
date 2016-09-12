@@ -36,8 +36,8 @@ trait ApiActions
         
         $filter = $this->repository->filter($request);
         
-        if ($this->list) {
-            $resources = $filter->get($limit);
+        if ($this->list || $request->request->get('search_type') == 'list') {
+            $resources = $filter->get(1000);
         } else {
             $resources = $filter->paginate($limit);
         }
@@ -77,7 +77,7 @@ trait ApiActions
         
         $text = $request->request->get('text');
         
-        $resources = $this->repository->autocomplete($text)->get();
+        $resources = $this->repository->filter($request)->autocomplete($text)->get();
         
         if ($resources->count() < 1) {
             // return $this->notFound();
@@ -95,7 +95,11 @@ trait ApiActions
     {
         $id = $this->getRealId($id);
         
-        $resource = $this->repository->find($id);
+        $request->criteria[] = 'id,=,' . $id;
+        
+        $resource = $this->repository->filter($request)->first();
+        
+        //$resource = $this->repository->find($id);
         
         if (! $resource) {
             // return $this->notFound();
@@ -171,22 +175,11 @@ trait ApiActions
      *
      * @return object Lab123\Odin\FieldManager
      */
-    private function getFieldManager()
+    protected function getFieldManager()
     {
         /* Verifica se existe Field Manager com prefixo igual a controller */
         if (! $this->fieldManager) {
-            $pathClassExploded = explode('\\', get_class($this));
-            $namespace = array_first($pathClassExploded);
-            $nameController = array_last($pathClassExploded);
-            $resourceName = str_replace('Controller', '', $nameController);
-            
-            /* Verifica se existe o Field Manager para o recurso */
-            if (! class_exists("{$namespace}\\FieldManagers\\{$resourceName}FieldManager")) {
-                echo "Crie o Field Manager {$resourceName}FieldManager em {$namespace}\\FieldManagers";
-                exit();
-            }
-            
-            $this->fieldManager = $namespace . "\\FieldManagers\\{$resourceName}FieldManager";
+        	$this->fieldManager = $this->repository->getFieldManager();
         }
         
         /* Ainda precisa instanciar o objeto */

@@ -3,7 +3,6 @@ namespace Lab123\Odin\Libs;
 
 use Lab123\Odin\Requests\FilterRequest;
 use Lab123\Odin\Entities\Entity;
-use Lab123\Odin\Libs\Api;
 use DB;
 
 class Search
@@ -93,6 +92,9 @@ class Search
                 $inArray[$field][] = $value;
                 continue;
             }
+            
+            // SE CAMPO POSSUI O . É POSSÍVEL QUE SEJA BUSCA OUTRA ENTIDADE FILTRADA
+            $field = (strpos($field, '.') !== false) ? $field : $this->entity->getTable() . '.' . $field;
             
             $this->builder = $this->builder->where($field, $operator, $value);
         }

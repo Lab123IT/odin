@@ -45,9 +45,9 @@ trait FieldsRules
             $transformed[$new_name] = $array[$name];
         }
         
-        $transformed = array(
+        /*$transformed = array(
             'uri' => $this->getResourceData()
-        ) + $transformed;
+        ) + $transformed;*/
         
         return $transformed;
     }
