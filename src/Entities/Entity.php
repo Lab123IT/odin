@@ -1,41 +1,26 @@
 <?php
+
 namespace Lab123\Odin\Entities;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Route;
 use Lab123\Odin\Libs\Api;
 use Request;
 
 abstract class Entity extends Model
 {
-
+	/**
+	 * Return entities loads to response API.
+	 *
+	 * @var boolean
+	 */
+	static $loaded = false;
+	
     /**
      * The resource name from model.
      *
      * @var string
      */
     protected $resource = '';
-
-    /**
-     * Load model from relation.
-     *
-     * @var array
-     */
-    public $load = [];
-
-    /**
-     * Load only URI.
-     *
-     * @var array
-     */
-    public $loadUri = [];
-
-    /**
-     * Return entities loads to response API.
-     *
-     * @var boolean
-     */
-    static $loaded = false;
 
     /**
      * Class Fields Manage.
@@ -51,6 +36,20 @@ abstract class Entity extends Model
      */
     protected $parent = '';
 
+    /**
+     * Load model from relation.
+     *
+     * @var array
+     */
+    public $load = [];
+    
+    /**
+     * Load only URI.
+     *
+     * @var array
+     */
+    public $loadUri = [];
+    
     /**
      * The actions from resource.
      *

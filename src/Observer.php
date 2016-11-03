@@ -1,9 +1,11 @@
 <?php
+
 namespace Lab123\Odin;
 
 use Lab123\Odin\Entities\Entity;
+use Lab123\Odin\Contracts\IObserver;
 
-abstract class Observer
+abstract class Observer implements IObserver
 {
 
     /**
@@ -55,48 +57,48 @@ abstract class Observer
     /**
      * Active observer in trigger creating
      */
-    protected function creating($entity)
+    public function creating($entity)
     {}
 
     /**
      * Active observer in trigger created
      */
-    protected function created($entity)
+    public function created($entity)
     {}
 
     /**
      * Active observer in trigger saving
      */
-    protected function saving($entity)
+    public function saving($entity)
     {}
 
     /**
      * Active observer in trigger saved
      */
-    protected function saved($entity)
+    public function saved($entity)
     {}
 
     /**
      * Active observer in trigger updating
      */
-    protected function updating($entity)
+    public function updating($entity)
     {}
 
     /**
      * Active observer in trigger updated
      */
-    protected function updated($entity)
+    public function updated($entity)
     {}
 
     /**
      * Active observer in trigger deleting
      */
-    protected function deleting($entity)
+    public function deleting($entity)
     {}
 
     /**
      * Active observer in trigger deleted
      */
-    protected function deleted($entity)
+    public function deleted($entity)
     {}
 }
