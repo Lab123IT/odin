@@ -62,4 +62,18 @@ abstract class Observer implements IObserver
      * @param Entity $entity
      */
     public function deleted($entity) {}
+    
+    /**
+     * Active observer in trigger restoring
+     * 
+     * @param Entity $entity
+     */
+    public function restoring($entity) {}
+    
+    /**
+     * Active observer in trigger restored
+     * 
+     * @param Entity $entity
+     */
+    public function restored($entity) {}
 }
