@@ -28,7 +28,7 @@ abstract class FieldManager
             }
             
             /* Ajuste para validação de array */
-            if ($this->getOnlyField($field)) {
+            if (strpos($field, '.') > -1) {
                 
                 $rules[$field] = $rules[$this->getOnlyField($field)] . '|' . $rule;
                 unset($rules[$this->getOnlyField($field)]);
