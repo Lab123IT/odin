@@ -23,7 +23,15 @@ abstract class FieldManager
         /* Adiciona as regras extras as regras padrão do objeto */
         foreach ($extraRules as $field => $rule) {
             
-            if (! key_exists($field, $rules)) {
+            if (! key_exists($this->getOnlyField($field), $rules)) {
+                continue;
+            }
+            
+            /* Ajuste para validação de array */
+            if ($this->getOnlyField($field)) {
+                
+                $rules[$field] = $rules[$this->getOnlyField($field)] . '|' . $rule;
+                unset($rules[$this->getOnlyField($field)]);
                 continue;
             }
             
@@ -31,6 +39,13 @@ abstract class FieldManager
         }
         
         return $this->transformToFrontName($rules);
+    }
+
+    private function getOnlyField($string)
+    {
+        $array = explode('.', $string);
+        
+        return end($array);
     }
 
     /**
@@ -96,7 +111,14 @@ abstract class FieldManager
         }
         
         foreach ($transformation as $name => $new_name) {
+            
             if (! key_exists($name, $array)) {
+                
+                foreach ($array as $field => $rule) {
+                    if ($this->getOnlyField($field) == $name) {
+                        $transformed[$field] = $array[$field];
+                    }
+                }
                 continue;
             }
             

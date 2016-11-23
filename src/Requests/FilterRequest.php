@@ -160,6 +160,9 @@ class FilterRequest
         
         $request = $this->request->all();
         foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                break;
+            }
             $request['criteria'][] = $k . ',=,' . $v;
         }
         
