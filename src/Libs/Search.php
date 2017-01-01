@@ -93,8 +93,22 @@ class Search
                 continue;
             }
             
+            if (strpos($value, '*') !== false) {
+                $operator = 'like';
+                $value = str_replace('*', '%', $value);
+                         
+            }
+            
             // SE CAMPO POSSUI O . É POSSÍVEL QUE SEJA BUSCA OUTRA ENTIDADE FILTRADA
-            $field = (strpos($field, '.') !== false) ? $field : $this->entity->getTable() . '.' . $field;
+
+            if (strpos($field, '.') !== false) {
+                list($relation, $field) = explode('.', $field);
+                // 
+                $this->builder = $this->entity::whereHas($relation, function ($query) use($field, $operator, $value) {
+                    $query->where($field, $operator, $value);
+                });
+                break;
+            }
             
             $this->builder = $this->builder->where($field, $operator, $value);
         }

@@ -163,6 +163,10 @@ class FilterRequest
             if (is_array($v)) {
                 break;
             }
+            
+            if (strpos($k, ':')) {
+                $k = str_replace(':', '.', $k);
+            }
             $request['criteria'][] = $k . ',=,' . $v;
         }
         
