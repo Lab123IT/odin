@@ -156,6 +156,10 @@ class FilterRequest
      */
     public function setCriteriaByQueryString()
     {
+    	if ($this->request->method() != 'GET') {
+    		return $this;
+    	}
+    	
         $data = $this->request->except(RequestReservedWords::all());
         
         $request = $this->request->all();
