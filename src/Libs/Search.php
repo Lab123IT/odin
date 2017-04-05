@@ -8,241 +8,265 @@ use DB;
 class Search
 {
 
-    protected $entity;
+	protected $entity;
 
-    protected $builder;
+	protected $builder;
 
-    protected $filters;
+	protected $filters;
 
-    public function __construct(Entity $entity, FilterRequest $filters, $builder = null)
-    {
-        $this->builder = $this->entity = $entity;
-        
-        if ($builder) {
-            $this->builder = $builder;
-        }
-        
-        $this->filters = $filters;
-        
-        $this->setFilters();
-    }
+	public function __construct(Entity $entity, FilterRequest $filters, $builder = null)
+	{
+		$this->builder = $this->entity = $entity;
 
-    /**
-     * Transform object into a generic filter
-     *
-     * @return this
-     */
-    public function setFilters()
-    {
-        $this->fields()
-            ->includes()
-            ->limit()
-            ->orderBy()
-            ->groupBy()
-            ->criteria();
-    }
+		if ($builder) {
+			$this->builder = $builder;
+		}
 
-    /**
-     * Return Query Builder with filters
-     *
-     * @return this
-     */
-    public function getBuilder()
-    {
-        return $this->builder;
-    }
+		$this->filters = $filters;
 
-    /**
-     * Set fields to return in select
-     *
-     * @return this
-     */
-    public function fields()
-    {
-        $fields = $this->filters->fields;
-        if ($this->filters->fields[0] != '*') {
-            $fields = $this->getOnlyAvailableAttributes($fields);
-        }
-        
-        $this->builder = $this->builder->select($fields);
-        
-        return $this;
-    }
+		$this->setFilters();
+	}
 
-    /**
-     * Set criteria where to return in select
-     *
-     * @return this
-     */
-    public function criteria()
-    {
-        $inArray = [];
-        foreach ($this->filters->criteria as $criteria) {
-            
-            list ($field, $operator, $value) = explode(',', $criteria);
-            
-            /* Verifica se o campo enviado Ã© filtrÃ¡vel */
-            /*
-             * if (! $this->isAvailableAttribute($field)) {
-             * continue;
-             * }
-             */
-            
-            if (strtoupper($operator) === 'IN') {
-                $inArray[$field][] = $value;
-                continue;
-            }
-            
-            if (strpos($value, '*') !== false) {
-                $operator = 'like';
-                $value = str_replace('*', '%', $value);
-                         
-            }
-            
-            // SE CAMPO POSSUI O . Ã‰ POSSÃVEL QUE SEJA BUSCA OUTRA ENTIDADE FILTRADA
+	/**
+	 * Transform object into a generic filter
+	 *
+	 * @return this
+	 */
+	public function setFilters()
+	{
+		$this->fields()
+		->includes()
+		->limit()
+		->orderBy()
+		->groupBy()
+		->criteria();
+	}
 
-            if (strpos($field, '.') !== false) {
-                list($relation, $field) = explode('.', $field);
-                // 
-                $this->builder = $this->entity::whereHas($relation, function ($query) use($field, $operator, $value) {
-                    $query->where($field, $operator, $value);
-                });
-                break;
-            }
-            
-            $this->builder = $this->builder->where($field, $operator, $value);
-        }
-        
-        /* Efetua o IN do criteria */
-        if (count($inArray)) {
-            foreach ($inArray as $field => $data) {
-                $this->builder = $this->builder->whereIn($field, $data);
-            }
-        }
-        
-        return $this;
-    }
+	/**
+	 * Return Query Builder with filters
+	 *
+	 * @return this
+	 */
+	public function getBuilder()
+	{
+		return $this->builder;
+	}
 
-    /**
-     * Set includes to return in select
-     *
-     * @return this
-     */
-    public function includes()
-    {
-        foreach ($this->filters->includes as $include) {
-            $this->builder = $this->builder->with($include);
-        }
-        
-        return $this;
-    }
+	/**
+	 * Set fields to return in select
+	 *
+	 * @return this
+	 */
+	public function fields()
+	{
+		$fields = $this->filters->fields;
+		if ($this->filters->fields[0] != '*') {
+			$fields = $this->getOnlyAvailableAttributes($fields);
+		}
 
-    /**
-     * Set order to return in select
-     *
-     * @return this
-     */
-    public function orderBy()
-    {
-        if (end($this->filters->order) == "random") {
-            $this->builder = $this->builder->orderBy($this->random());
-            return $this;
-        }
-        
-        foreach ($this->filters->order as $order) {
-            
-            $order = explode(',', $order);
-            
-            $order[1] = (array_key_exists(1, $order)) ? $order[1] : '';
-            
-            $this->builder = $this->builder->orderBy($order[0], $order[1]);
-        }
-        
-        return $this;
-    }
+		$this->builder = $this->builder->select($fields);
 
-    /**
-     * Set order to return in select
-     *
-     * @return this
-     */
-    public function groupBy()
-    {
-        if ($this->filters->group) {
-            $this->builder = $this->builder->groupBy($this->filters->group);
-        }
-        
-        return $this;
-    }
+		return $this;
+	}
 
-    /**
-     * Set limit to return in select
-     *
-     * @return this
-     */
-    public function limit()
-    {
-        $this->builder = $this->builder->take((int) $this->filters->limit);
-        
-        return $this;
-    }
+	/**
+	 * Set criteria where to return in select
+	 *
+	 * @return this
+	 */
+	public function criteria()
+	{
+		$inArray = [];
+		foreach ($this->filters->criteria as $criteria) {
 
-    /**
-     * Random data frm database
-     *
-     * @return raw
-     */
-    private function random()
-    {
-        /* FunÃ§Ãµes para random de cada um dos SGBDs tradicionais */
-        $randomFunctions = [
-            'mysql' => 'RAND()',
-            'pgsql' => 'RANDOM()',
-            'sqlite' => 'RANDOM()',
-            'sqlsrv' => 'NEWID()',
-            'dblib' => 'NEWID()'
-        ];
-        
-        /* Drive padrÃ£o da entidade */
-        $driver = $this->entity->getConnection()->getDriverName();
-        
-        return DB::raw($randomFunctions[$driver]);
-    }
+			list ($field, $operator, $value) = explode(',', $criteria);
 
-    /**
-     * Return only fields of Entity
-     *
-     * @return array
-     */
-    private function getOnlyAvailableAttributes(array $verify = [])
-    {
-        $fillable = array_flip($this->entity->getFillable());
-        
-        // $this->entity->getTransformation()
-        
-        $availableAttributes = [];
-        foreach ($verify as $k => $v) {
-            if (key_exists($v, $fillable)) {
-                $availableAttributes[$k] = $v;
-            }
-        }
-        
-        return $availableAttributes;
-    }
+			/* Verifica se o campo enviado é filtrável */
+			/*
+			 * if (! $this->isAvailableAttribute($field)) {
+			 * continue;
+			 * }
+			 */
 
-    /**
-     * Return only fields of Entity
-     *
-     * @return array
-     */
-    private function isAvailableAttribute($field)
-    {
-        $fillable = array_flip($this->entity->getFillable());
-        
-        if (key_exists($field, $fillable) || $field === 'id') {
-            return true;
-        }
-        
-        return false;
-    }
+			if (strtoupper($operator) === 'IN') {
+				$inArray[$field][] = $value;
+				continue;
+			}
+
+			/* FILTRO COM * É CONSIDERADO LIKE */
+			if (strpos($value, '*') !== false) {
+				$operator = 'like';
+				$value = str_replace('*', '%', $value);
+				 
+			}
+
+			/* FILTRO COM >= É CONSIDERADO INTEIRO */
+			if (strpos($value, '>=') !== false) {
+				$operator = '>=';
+				$value = str_replace('>=', '', $value);
+			}
+
+			/* FILTRO COM > É CONSIDERADO INTEIRO */
+			if (strpos($value, '>') !== false) {
+				$operator = '>';
+				$value = str_replace('>', '', $value);
+			}
+
+			/* FILTRO COM <= É CONSIDERADO INTEIRO */
+			if (strpos($value, '<=') !== false) {
+				$operator = '<=';
+				$value = str_replace('<=', '', $value);
+			}
+
+			/* FILTRO COM < É CONSIDERADO INTEIRO */
+			if (strpos($value, '<') !== false) {
+				$operator = '<';
+				$value = str_replace('<', '', $value);
+			}
+
+			// SE CAMPO POSSUI O . É POSSÍVEL QUE SEJA BUSCA OUTRA ENTIDADE FILTRADA
+
+			if (strpos($field, '.') !== false) {
+				list($relation, $field) = explode('.', $field);
+				$this->builder = $this->builder->whereHas($relation, function ($query) use($field, $operator, $value) {
+					$query->where($field, $operator, $value);
+				});
+					break;
+			}
+
+			$this->builder = $this->builder->where($field, $operator, $value);
+		}
+
+		/* Efetua o IN do criteria */
+		if (count($inArray)) {
+			foreach ($inArray as $field => $data) {
+				$this->builder = $this->builder->whereIn($field, $data);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set includes to return in select
+	 *
+	 * @return this
+	 */
+	public function includes()
+	{
+		foreach ($this->filters->includes as $include) {
+			$this->builder = $this->builder->with($include);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set order to return in select
+	 *
+	 * @return this
+	 */
+	public function orderBy()
+	{
+		if (end($this->filters->order) == "random") {
+			$this->builder = $this->builder->orderBy($this->random());
+			return $this;
+		}
+
+		foreach ($this->filters->order as $order) {
+
+			$order = explode(',', $order);
+
+			$order[1] = (array_key_exists(1, $order)) ? $order[1] : '';
+
+			$this->builder = $this->builder->orderBy($order[0], $order[1]);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set order to return in select
+	 *
+	 * @return this
+	 */
+	public function groupBy()
+	{
+		if ($this->filters->group) {
+			$this->builder = $this->builder->groupBy($this->filters->group);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Set limit to return in select
+	 *
+	 * @return this
+	 */
+	public function limit()
+	{
+		$this->builder = $this->builder->take((int) $this->filters->limit);
+
+		return $this;
+	}
+
+	/**
+	 * Random data frm database
+	 *
+	 * @return raw
+	 */
+	private function random()
+	{
+		/* Funções para random de cada um dos SGBDs tradicionais */
+		$randomFunctions = [
+				'mysql' => 'RAND()',
+				'pgsql' => 'RANDOM()',
+				'sqlite' => 'RANDOM()',
+				'sqlsrv' => 'NEWID()',
+				'dblib' => 'NEWID()'
+		];
+
+		/* Drive padrão da entidade */
+		$driver = $this->entity->getConnection()->getDriverName();
+
+		return DB::raw($randomFunctions[$driver]);
+	}
+
+	/**
+	 * Return only fields of Entity
+	 *
+	 * @return array
+	 */
+	private function getOnlyAvailableAttributes(array $verify = [])
+	{
+		$fillable = array_flip($this->entity->getFillable());
+
+		// $this->entity->getTransformation()
+
+		$availableAttributes = [];
+		foreach ($verify as $k => $v) {
+			if (key_exists($v, $fillable)) {
+				$availableAttributes[$k] = $v;
+			}
+		}
+
+		return $availableAttributes;
+	}
+
+	/**
+	 * Return only fields of Entity
+	 *
+	 * @return array
+	 */
+	private function isAvailableAttribute($field)
+	{
+		$fillable = array_flip($this->entity->getFillable());
+
+		if (key_exists($field, $fillable) || $field === 'id') {
+			return true;
+		}
+
+		return false;
+	}
 }
