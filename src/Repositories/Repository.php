@@ -574,4 +574,19 @@ abstract class Repository implements IRepository
         
         return $this;
     }
+
+    /**
+     * Average field
+     *
+     * @param string $field
+     * @return float
+     */
+    public function avg($field)
+    {
+    	if (! $this->builder) {
+    		$this->builder = $this->model;
+    	}
+    	 
+    	return $this->builder->avg($field);
+    }
 }
