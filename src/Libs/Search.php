@@ -87,7 +87,14 @@ class Search
 			 * continue;
 			 * }
 			 */
+			
+			/* FILTRO NULL */
+			if (strtoupper($value) === 'NULL') {
+				$this->builder = $this->builder->whereNull($field);
+				continue;
+			}
 
+			/* FILTRO IN */
 			if (strtoupper($operator) === 'IN') {
 				$inArray[$field][] = $value;
 				continue;
