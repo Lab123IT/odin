@@ -131,6 +131,11 @@ abstract class Repository implements IRepository
             }
         } else {
             foreach ($criteria as $c) {
+            	
+            	if($c[1] == 'between') {
+            		$this->builder = $this->builder->whereBetween($c[0], explode(',', $c[2]));
+            		continue;
+            	}
                 $this->builder = $this->builder->where($c[0], $c[1], $c[2]);
             }
         }
