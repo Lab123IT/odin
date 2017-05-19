@@ -109,9 +109,11 @@ class LumenServiceProvider extends ServiceProvider
      */
     protected function registerAlias()
     {
-        class_alias('Illuminate\Support\Facades\App', 'App');
-        class_alias('Illuminate\Support\Facades\Request', 'Request');
-        class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
+        if (env('APP_ENV') != 'testing') {
+            class_alias('Illuminate\Support\Facades\App', 'App');
+            class_alias('Illuminate\Support\Facades\Request', 'Request');
+            class_alias('Lab123\Odin\Controllers\LumenController', 'Lab123\Odin\Controllers\Controller');
+        }
     }
 
     /**
