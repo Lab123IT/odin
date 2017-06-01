@@ -67,7 +67,7 @@ class Collection extends IlluminateCollection
         }
         
         $newData = [];
-        
+        $rootUriResource = '';
         foreach ($data as $k => $value) {
             if (key_exists('uri', $value)) {
                 $urlExploded = explode('/', $value['uri']);
